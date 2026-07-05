@@ -1,12 +1,25 @@
-import { IconHelmet, IconMenu2 } from '@tabler/icons-react';
+import { IconMenu2 } from '@tabler/icons-react';
+import logoPng from '../assets/logo.png';
+import logoWebp from '../assets/logo.webp';
 
 function Header({ onSignInClick }) {
   return (
     <header className="border-b border-white/10 bg-page/95">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/15 text-accent">
-            <IconHelmet size={20} />
+          <div className="flex h-20 w-16 items-center justify-center rounded-full p-1">
+            {/* WebP first, PNG fallback for older browsers */}
+            <picture>
+              <source srcSet={logoWebp} type="image/webp" />
+              <img
+                src={logoPng}
+                alt="TORQ logo"
+                width={130}
+                height={130}
+                className="h-full w-full object-contain"
+                decoding="async"
+              />
+            </picture>
           </div>
           <div>
             <p className="font-display text-xl font-semibold tracking-[0.2em] text-text">TORQ</p>
