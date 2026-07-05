@@ -1,0 +1,18 @@
+#05/07/2026 16:17
+1. Name and logo need redone. Find the font for the name.
+
+2. Sign in should have a hover and onclick function. Need to create onboarding slides.
+Onboarding should have a progress bar at the top.
+
+3. Home page should be more informational until the user logs in; no service, no mot, delete ride score entirely
+
+4. Back to being more informational, the current widgets should showcase what the app has to offer. "Track your maintenance, service and mot reminders in one place, always be ride ready with our pre ride checklist, take part in our communtiy" etc etc etc.
+When scrolling down, there should be a widget showcasing what the users phone could look like. A visual of a phone with the profile screen? I will develop this and place it into the docs area for implementation.
+
+5. The home page before sign in doesn't need to have the calendar function at all. It should be mentioned when showcasing the app.
+
+6. I think the ride conditions should be kept. 
+
+7. There needs to be a footer. It should copyright Chantelle Lavery.
+
+8. The home screen will change to show all the user-specific details AFTER sign up, login and onboarding have taken place.

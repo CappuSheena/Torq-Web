@@ -3,6 +3,10 @@ export default {
   content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        // Wordmark-only font; body text stays on the default Inter/system stack
+        display: ['Rajdhani', 'sans-serif'],
+      },
       colors: {
         page: '#0A0E1A',
         surface: '#131B2E',

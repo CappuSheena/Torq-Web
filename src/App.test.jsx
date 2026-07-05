@@ -8,6 +8,6 @@ describe('Torq home screen', () => {
 
     expect(screen.getByText(/keep the ride ready/i)).toBeInTheDocument();
     expect(screen.getByText(/maintenance status/i)).toBeInTheDocument();
-    expect(screen.getByText(/bike snapshot/i)).toBeInTheDocument();
+    expect(screen.getByText(/ride conditions/i)).toBeInTheDocument();
   });
 });
