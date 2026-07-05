@@ -7,7 +7,7 @@ function Header({ onSignInClick }) {
     <header className="border-b border-white/10 bg-page/95">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3">
-          <div className="flex h-20 w-16 items-center justify-center rounded-full p-1">
+          <div className="flex h-10 w-20 items-center justify-center rounded-full p-1">
             {/* WebP first, PNG fallback for older browsers */}
             <picture>
               <source srcSet={logoWebp} type="image/webp" />
@@ -22,8 +22,8 @@ function Header({ onSignInClick }) {
             </picture>
           </div>
           <div>
-            <p className="font-display text-xl font-semibold tracking-[0.2em] text-text">TORQ</p>
-            <p className="text-xs text-muted">Glasgow riders</p>
+            <p className="font-display text-6xl font-bold tracking-[0.2em] text-text">TORQ</p>
+            <p className="text-xs text-muted font-family font-medium">Maintainance Made Measy</p>
           </div>
         </div>
 

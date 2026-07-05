@@ -3,7 +3,7 @@ function Hero() {
   return (
     <div className="rounded-[20px] border border-white/10 bg-surface p-5 shadow-flat">
       <p className="text-sm font-medium text-accent">Built for Glasgow riders</p>
-      <h1 className="mt-2 text-2xl font-semibold sm:text-3xl">
+      <h1 className="font-display mt-2 text-2xl font-medium sm:text-3xl">
         Keep the ride ready and the community close.
       </h1>
       <p className="mt-3 max-w-2xl text-sm leading-6 text-muted sm:text-base">

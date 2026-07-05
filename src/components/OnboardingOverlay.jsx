@@ -30,7 +30,7 @@ function OnboardingOverlay({ step, onNext, onBack, onClose }) {
           <IconX size={18} />
         </button>
 
-        <h2 className="mt-2 text-xl font-semibold text-text">{slide.title}</h2>
+        <h2 className="font-display mt-2 text-xl font-medium text-text">{slide.title}</h2>
         <p className="mt-3 text-sm leading-6 text-muted">{slide.body}</p>
 
         <div className="mt-6 flex items-center justify-between">

@@ -4,8 +4,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        // Wordmark-only font; body text stays on the default Inter/system stack
-        display: ['Rajdhani', 'sans-serif'],
+        // Logo + headings only; body text stays on the default Inter/system stack
+        display: ['Teko', 'sans-serif'],
       },
       colors: {
         page: '#0A0E1A',
