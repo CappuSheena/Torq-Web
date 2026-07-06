@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
   IconCamera,
   IconCheck,
@@ -22,23 +22,15 @@ function OnboardingOverlay({ step, onNext, onBack, onClose }) {
   const [taxDue, setTaxDue] = useState('');
   const [insuranceDue, setInsuranceDue] = useState('');
 
-  const isStepFour = step === 3;
   const showBackButton = step > 0;
 
   const currentTitle = step === 0 ? (mode === 'register' ? 'Create your account' : 'Log in to TORQ') : slide.title;
   const currentBody =
     step === 0
       ? mode === 'register'
-        ? 'Start with your email and password to unlock TORQ’s maintenance dashboard.'
+        ? 'Start with your email and password to unlock TORQ.'
         : 'Enter your account details to access TORQ.'
       : slide.body;
-
-  const stepLabel = useMemo(() => {
-    if (isStepFour) {
-      return `Step ${step + 1} of ${onboardingSlides.length} · optional`;
-    }
-    return `Step ${step + 1} of ${onboardingSlides.length}`;
-  }, [isStepFour, step]);
 
   const handleAvatarChange = (event) => {
     const file = event.target.files?.[0] || null;
@@ -61,9 +53,17 @@ function OnboardingOverlay({ step, onNext, onBack, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-6">
       <div className="w-full max-w-md overflow-hidden rounded-[24px] border border-white/10 bg-surface p-6 shadow-flat">
+        <div className="mb-4 flex gap-2">
+          {onboardingSlides.map((_, index) => (
+            <span
+              key={index}
+              className={`h-2.5 flex-1 rounded-full transition ${index <= step ? 'bg-accent' : 'bg-white/10'}`}
+            />
+          ))}
+        </div>
+
         <div className="mb-5 flex items-center justify-between gap-4">
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-[0.35em] text-accent/90">{stepLabel}</p>
             <h2 className="font-display text-2xl font-semibold text-text">{currentTitle}</h2>
             <p className="text-sm leading-6 text-muted">{currentBody}</p>
           </div>
@@ -75,15 +75,6 @@ function OnboardingOverlay({ step, onNext, onBack, onClose }) {
           >
             <IconX size={18} />
           </button>
-        </div>
-
-        <div className="mb-6 flex gap-2">
-          {onboardingSlides.map((_, index) => (
-            <span
-              key={index}
-              className={`h-2.5 flex-1 rounded-full transition ${index <= step ? 'bg-accent' : 'bg-white/10'}`}
-            />
-          ))}
         </div>
 
         <div className="space-y-5">
@@ -135,19 +126,6 @@ function OnboardingOverlay({ step, onNext, onBack, onClose }) {
                   className="w-full rounded-2xl border border-white/10 bg-[#0D1520] px-4 py-3 text-sm text-text placeholder:text-white/40 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
                   placeholder="Gordy"
                 />
-              </div>
-
-              <div className="space-y-3">
-                <span className="block text-sm font-medium text-text">Avatar</span>
-                <label className="group flex cursor-pointer items-center gap-4 rounded-3xl border border-white/10 bg-[#0D1520] px-4 py-4 transition hover:border-accent">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/5 text-accent transition group-hover:bg-accent/10">
-                    {avatarPreview ? (
-                      <img src={avatarPreview} alt="Avatar preview" className="h-16 w-16 rounded-full object-cover" />
-                    ) : (
-                      <IconCamera size={24} />
-                    )}
-                  </div>
-                </label>
               </div>
             </div>
           )}

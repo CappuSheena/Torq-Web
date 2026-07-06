@@ -40,11 +40,11 @@ export const featureCards = [
 export const onboardingSlides = [
   {
     title: 'Create your account',
-    body: 'Start with your email and password to unlock TORQ’s maintenance dashboard.',
+    body: 'Start with your email and password before creating your bikes profile.',
   },
   {
     title: 'Tell us about you',
-    body: 'Add a display name and optional avatar so the app feels personal.',
+    body: 'Add a display name.',
   },
   {
     title: 'Add your bike',
