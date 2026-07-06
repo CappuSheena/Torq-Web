@@ -12,6 +12,17 @@ export const featureCards = [
     description:
       'Track your servicing, MOT and insurance renewals in one place, with reminders before anything lapses.',
     icon: IconTool,
+    featured: true,
+    image: '/assets/screenshots/key-dates.png',
+    imageAlt: 'Bike profile card showing MOT, tax and insurance key dates',
+  },
+  {
+    title: 'Shared calendar',
+    description: 'See every service date and bike meet on one colour-coded calendar once you sign in.',
+    icon: IconCalendarEvent,
+    featured: true,
+    image: '/assets/screenshots/calendar.png',
+    imageAlt: 'Mini calendar with colour-coded maintenance and bike meet dates',
   },
   {
     title: 'Pre-ride checklist',
@@ -23,25 +34,28 @@ export const featureCards = [
     description: 'Take part in the community — local rides, guides and events around Glasgow.',
     icon: IconMapPin,
   },
-  {
-    title: 'Shared calendar',
-    description: 'See every service date and bike meet on one colour-coded calendar once you sign in.',
-    icon: IconCalendarEvent,
-  },
 ];
 
-// Onboarding is a UI stub for now — slides and copy are placeholders. The array shows how many slides there are, and the content is used to populate the screen. Over time I will change the onboard to include an actual login screen (email/password) that talks to mySQL database. 
+// Onboarding is a UI stub for now — slides and copy are placeholders for the new flow.
 export const onboardingSlides = [
   {
-    title: 'Welcome to TORQ',
-    body: 'Everything you need to keep your bike road-legal and ride-ready, built for Glasgow riders.',
+    title: 'Create your account',
+    body: 'Start with your email and password to unlock TORQ’s maintenance dashboard.',
   },
   {
-    title: 'Stay on top of maintenance',
-    body: "We'll remind you before your service, MOT, tax or insurance is due — no spreadsheets required.",
+    title: 'Tell us about you',
+    body: 'Add a display name and optional avatar so the app feels personal.',
   },
   {
-    title: "You're almost set",
-    body: 'Add your bike next and your dashboard will fill in with everything above.',
+    title: 'Add your bike',
+    body: 'Pick your make, model and year so TORQ can tailor reminders to your machine.',
+  },
+  {
+    title: 'Key dates (optional)',
+    body: 'Add MOT, tax and insurance renewals now or skip this step and do it later.',
+  },
+  {
+    title: "You're all set",
+    body: 'Your bike profile is ready — head to the dashboard to see your maintenance summary.',
   },
 ];

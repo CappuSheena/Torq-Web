@@ -3,7 +3,6 @@ import Header from './components/Header';
 import Hero from './components/Hero';
 import FeatureCard from './components/FeatureCard';
 import PhonePreview from './components/PhonePreview';
-import RideConditions from './components/RideConditions';
 import OnboardingOverlay from './components/OnboardingOverlay';
 import Footer from './components/Footer';
 import { featureCards, onboardingSlides } from './data/homeContent';
@@ -33,7 +32,7 @@ function App() {
     <div className="min-h-screen bg-page text-text">
       <Header onSignInClick={openOnboarding} />
 
-      <main className="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[1.5fr_0.7fr] lg:px-8 lg:py-8">
+      <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
         <section className="space-y-6">
           <Hero />
 
@@ -45,16 +44,15 @@ function App() {
                 title={card.title}
                 description={card.description}
                 icon={card.icon}
+                featured={card.featured}
+                image={card.image}
+                imageAlt={card.imageAlt}
               />
             ))}
           </div>
 
           <PhonePreview />
         </section>
-
-        <aside className="space-y-4">
-          <RideConditions />
-        </aside>
       </main>
 
       <Footer />

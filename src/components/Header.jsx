@@ -32,9 +32,16 @@ function Header({ onSignInClick }) {
           <button
             type="button"
             onClick={onSignInClick}
-            className="hidden rounded-full border border-white/10 px-4 py-2 text-sm text-muted transition hover:border-accent/50 hover:text-accent sm:inline-flex"
+            className="hidden bg-accent rounded-full border border-white/10 px-4 py-2 text-sm text-black transition-all hover:bg-accent/90 active:scale-95 shadow-lg hover:shadow-xl hover:shadow-accent/20 sm:inline-flex"
           >
             Sign in
+          </button>
+          <button
+            type="button"
+            onClick={onSignInClick}
+            className="hidden rounded-full border border-white/10 px-4 py-2 text-sm text-muted transition hover:border-accent/50 hover:text-accent sm:inline-flex"
+          >
+            Already have an account? Log in
           </button>
           <button
             type="button"
