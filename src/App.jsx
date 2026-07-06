@@ -12,9 +12,15 @@ import { featureCards, onboardingSlides } from './data/homeContent';
 function App() {
   // null = onboarding closed, a number = open on that slide index
   const [onboardingStep, setOnboardingStep] = useState(null);
+  const [onboardingMode, setOnboardingMode] = useState('register');
   const isOnboardingOpen = onboardingStep !== null;
 
-  const openOnboarding = () => setOnboardingStep(0);
+  const openOnboarding = (mode = 'register') => {
+    setOnboardingMode(mode);
+    setOnboardingStep(0);
+  };
+  const openSignUp = () => openOnboarding('register');
+  const openLogIn = () => openOnboarding('login');
   const closeOnboarding = () => setOnboardingStep(null);
 
   const goToNextSlide = () => {
@@ -30,11 +36,11 @@ function App() {
 
   return (
     <div className="min-h-screen bg-page text-text">
-      <Header onSignInClick={openOnboarding} />
+      <Header onSignUpClick={openSignUp} onLogInClick={openLogIn} />
 
       <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
         <section className="space-y-6">
-          <Hero />
+          <Hero onSignUpClick={openSignUp} onLogInClick={openLogIn} />
 
           {/* featureCards lives in data/homeContent.js */}
           <div className="grid gap-4 sm:grid-cols-2">
@@ -60,6 +66,7 @@ function App() {
       {isOnboardingOpen && (
         <OnboardingOverlay
           step={onboardingStep}
+          initialMode={onboardingMode}
           onNext={goToNextSlide}
           onBack={goToPreviousSlide}
           onClose={closeOnboarding}

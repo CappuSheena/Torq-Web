@@ -1,8 +1,8 @@
 import heroImg from '../assets/heroImg.png';
-import RideConditions from './RideConditions';
+
 
 // marketing copy only — no personalised stats, there's no signed-in user yet
-function Hero() {
+function Hero({ onSignUpClick, onLogInClick }) {
   return (
     <div className="relative left-1/2 -mx-[50vw] w-screen min-h-[460px] overflow-hidden">
       {/* Full-bleed hero photo */}
@@ -35,10 +35,18 @@ function Hero() {
 
           {/* CTA Buttons - LINK TO LOG IN AND SIGN UP*/}
           <div className="mt-6 flex flex-wrap gap-3">
-            <button className="rounded-lg bg-accent px-6 py-3 font-semibold text-black transition-all hover:bg-accent/90 active:scale-95 shadow-lg hover:shadow-xl hover:shadow-accent/20">
+            <button
+              type="button"
+              className="rounded-lg bg-accent px-6 py-3 font-semibold text-black transition-all hover:bg-accent/90 active:scale-95 shadow-lg hover:shadow-xl hover:shadow-accent/20"
+              onClick={onSignUpClick}
+            >
               Get started for free
             </button>
-            <button className="rounded-lg border border-white/20 px-6 py-3 font-semibold text-text transition-all hover:border-white/40 hover:bg-white/5 active:scale-95">
+            <button
+              type="button"
+              className="rounded-lg border border-white/20 px-6 py-3 font-semibold text-text transition-all hover:border-white/40 hover:bg-white/5 active:scale-95"
+              onClick={onLogInClick}
+            >
               Already have an account? Sign in
             </button>
           </div>

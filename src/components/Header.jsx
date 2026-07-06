@@ -2,7 +2,7 @@ import { IconMenu2 } from '@tabler/icons-react';
 import logoPng from '../assets/logo.png';
 import logoWebp from '../assets/logo.webp';
 
-function Header({ onSignInClick }) {
+function Header({ onSignUpClick, onLogInClick }) {
   return (
     <header className="border-b border-white/10 bg-page/95">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
@@ -31,17 +31,17 @@ function Header({ onSignInClick }) {
           {/* no real auth yet — opens the onboarding stub */}
           <button
             type="button"
-            onClick={onSignInClick}
+            onClick={onSignUpClick}
             className="hidden bg-accent rounded-full border border-white/10 px-4 py-2 text-sm text-black transition-all hover:bg-accent/90 active:scale-95 shadow-lg hover:shadow-xl hover:shadow-accent/20 sm:inline-flex"
           >
-            Sign in
+            Sign up
           </button>
           <button
             type="button"
-            onClick={onSignInClick}
+            onClick={onLogInClick}
             className="hidden rounded-full border border-white/10 px-4 py-2 text-sm text-muted transition hover:border-accent/50 hover:text-accent sm:inline-flex"
           >
-            Already have an account? Log in
+            Log in
           </button>
           <button
             type="button"

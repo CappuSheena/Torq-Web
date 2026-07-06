@@ -6,10 +6,10 @@ import {
 } from '@tabler/icons-react';
 import { onboardingSlides } from '../data/homeContent';
 
-function OnboardingOverlay({ step, onNext, onBack, onClose }) {
+function OnboardingOverlay({ step, initialMode = 'register', onNext, onBack, onClose }) {
   const slide = onboardingSlides[step];
   const isLastSlide = step === onboardingSlides.length - 1;
-  const [mode, setMode] = useState('register');
+  const [mode, setMode] = useState(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
