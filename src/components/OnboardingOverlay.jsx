@@ -6,7 +6,16 @@ import {
 } from '@tabler/icons-react';
 import { onboardingSlides } from '../data/homeContent';
 
-function OnboardingOverlay({ step, initialMode = 'register', onNext, onBack, onClose }) {
+function OnboardingOverlay({
+  step,
+  initialMode = 'register',
+  onNext,
+  onBack,
+  onClose,
+  onAuthSubmit,
+  authError,
+  isSubmitting,
+}) {
   const slide = onboardingSlides[step];
   const isLastSlide = step === onboardingSlides.length - 1;
   const [mode, setMode] = useState(initialMode);
@@ -50,6 +59,35 @@ function OnboardingOverlay({ step, initialMode = 'register', onNext, onBack, onC
     setMode((current) => (current === 'register' ? 'login' : 'register'));
   };
 
+  const handlePrimaryAction = async (event) => {
+    event.preventDefault();
+
+    if (step !== 0) {
+      onNext();
+      return;
+    }
+
+    await onAuthSubmit({
+      mode,
+      email: email.trim(),
+      password,
+      displayName: displayName.trim(),
+    });
+  };
+
+  const primaryButtonLabel =
+    step === 0
+      ? mode === 'register'
+        ? isSubmitting
+          ? 'Creating account…'
+          : 'Create account'
+        : isSubmitting
+          ? 'Logging in…'
+          : 'Log in'
+      : isLastSlide
+        ? 'Go to dashboard'
+        : 'Continue';
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-6">
       <div className="w-full max-w-md overflow-hidden rounded-[24px] border border-white/10 bg-surface p-6 shadow-flat">
@@ -77,9 +115,22 @@ function OnboardingOverlay({ step, initialMode = 'register', onNext, onBack, onC
           </button>
         </div>
 
-        <div className="space-y-5">
+        <form className="space-y-5" onSubmit={handlePrimaryAction}>
           {step === 0 && (
             <div className="space-y-4">
+              {mode === 'register' && (
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-text">Display name</label>
+                  <input
+                    value={displayName}
+                    onChange={(event) => setDisplayName(event.target.value)}
+                    type="text"
+                    className="w-full rounded-2xl border border-white/10 bg-[#0D1520] px-4 py-3 text-sm text-text placeholder:text-white/40 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                    placeholder="Gordy"
+                  />
+                </div>
+              )}
+
               <div className="space-y-3">
                 <label className="block text-sm font-medium text-text">Email</label>
                 <input
@@ -102,6 +153,12 @@ function OnboardingOverlay({ step, initialMode = 'register', onNext, onBack, onC
                 />
               </div>
 
+              {authError && (
+                <div className="rounded-2xl border border-accent/20 bg-accent/10 px-3 py-2 text-sm text-accent">
+                  {authError}
+                </div>
+              )}
+
               <div className="flex items-center justify-center gap-2 text-sm text-muted">
                 <span>{mode === 'register' ? 'Already have an account?' : 'Need an account?'}</span>
                 <button
@@ -116,21 +173,6 @@ function OnboardingOverlay({ step, initialMode = 'register', onNext, onBack, onC
           )}
 
           {step === 1 && (
-            <div className="space-y-5">
-              <div className="space-y-3">
-                <label className="block text-sm font-medium text-text">Display name</label>
-                <input
-                  value={displayName}
-                  onChange={(event) => setDisplayName(event.target.value)}
-                  type="text"
-                  className="w-full rounded-2xl border border-white/10 bg-[#0D1520] px-4 py-3 text-sm text-text placeholder:text-white/40 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-                  placeholder="Gordy"
-                />
-              </div>
-            </div>
-          )}
-
-          {step === 2 && (
             <div className="space-y-4">
               <div className="space-y-3">
                 <label className="block text-sm font-medium text-text">Make</label>
@@ -173,7 +215,7 @@ function OnboardingOverlay({ step, initialMode = 'register', onNext, onBack, onC
             </div>
           )}
 
-          {step === 3 && (
+          {step === 2 && (
             <div className="space-y-4">
               <div className="space-y-3">
                 <label className="block text-sm font-medium text-text">MOT due</label>
@@ -207,7 +249,7 @@ function OnboardingOverlay({ step, initialMode = 'register', onNext, onBack, onC
             </div>
           )}
 
-          {step === 4 && (
+          {step === 3 && (
             <div className="space-y-5 text-center">
               <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-accent/15 text-accent">
                 <IconCheck size={34} />
@@ -216,50 +258,50 @@ function OnboardingOverlay({ step, initialMode = 'register', onNext, onBack, onC
               <p className="text-sm leading-6 text-muted">Your bike profile is ready. Welcome to TORQ.</p>
             </div>
           )}
-        </div>
 
-        <div className={`mt-6 ${step === 3 ? 'flex gap-3' : 'text-right'}`}>
-          {step === 3 ? (
-            <>
-              <button
-                type="button"
-                onClick={onNext}
-                className="flex-1 rounded-2xl border border-white/10 bg-transparent px-4 py-3 text-sm font-semibold text-text transition hover:border-accent hover:text-accent"
-              >
-                Skip for now
-              </button>
-              <button
-                type="button"
-                onClick={onNext}
-                className="flex-1 rounded-2xl bg-accent px-4 py-3 text-sm font-semibold text-page transition hover:bg-accent/90"
-              >
-                Continue
-              </button>
-            </>
-          ) : (
-            <div className="flex items-center justify-between">
-              {showBackButton ? (
+          <div className={`mt-6 ${step === 2 ? 'flex gap-3' : 'text-right'}`}>
+            {step === 2 ? (
+              <>
                 <button
                   type="button"
-                  onClick={onBack}
-                  className="rounded-full border border-white/10 px-4 py-2 text-sm text-muted transition hover:text-text"
+                  onClick={onNext}
+                  className="flex-1 rounded-2xl border border-white/10 bg-transparent px-4 py-3 text-sm font-semibold text-text transition hover:border-accent hover:text-accent"
                 >
-                  Back
+                  Skip for now
                 </button>
-              ) : (
-                <span />
-              )}
+                <button
+                  type="button"
+                  onClick={onNext}
+                  className="flex-1 rounded-2xl bg-accent px-4 py-3 text-sm font-semibold text-page transition hover:bg-accent/90"
+                >
+                  Continue
+                </button>
+              </>
+            ) : (
+              <div className="flex items-center justify-between">
+                {showBackButton ? (
+                  <button
+                    type="button"
+                    onClick={onBack}
+                    className="rounded-full border border-white/10 px-4 py-2 text-sm text-muted transition hover:text-text"
+                  >
+                    Back
+                  </button>
+                ) : (
+                  <span />
+                )}
 
-              <button
-                type="button"
-                onClick={onNext}
-                className="rounded-full bg-accent px-5 py-2 text-sm font-semibold text-page transition hover:bg-accent/90"
-              >
-                {isLastSlide ? 'Go to dashboard' : 'Continue'}
-              </button>
-            </div>
-          )}
-        </div>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="rounded-full bg-accent px-5 py-2 text-sm font-semibold text-page transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {primaryButtonLabel}
+                </button>
+              </div>
+            )}
+          </div>
+        </form>
       </div>
     </div>
   );

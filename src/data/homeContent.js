@@ -43,10 +43,6 @@ export const onboardingSlides = [
     body: 'Start with your email and password before creating your bikes profile.',
   },
   {
-    title: 'Tell us about you',
-    body: 'Add a display name.',
-  },
-  {
     title: 'Add your bike',
     body: 'Pick your make, model and year so TORQ can tailor reminders to your machine.',
   },

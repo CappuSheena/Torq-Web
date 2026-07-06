@@ -1,8 +1,13 @@
-import { IconMenu2 } from '@tabler/icons-react';
+import { useState } from 'react';
+import { IconMenu2, IconX } from '@tabler/icons-react';
 import logoPng from '../assets/logo.png';
 import logoWebp from '../assets/logo.webp';
+import MobileMenu from './MobileMenu';
 
-function Header({ onSignUpClick, onLogInClick }) {
+function Header({ onSignUpClick, onLogInClick, isAuthenticated = false, user = null, onLogout, isLoading = false }) {
+  // The header changes based on whether the user has a valid session.
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
     <header className="border-b border-white/10 bg-page/95">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
@@ -28,29 +33,63 @@ function Header({ onSignUpClick, onLogInClick }) {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* no real auth yet — opens the onboarding stub */}
+          {isLoading ? (
+            // While the session check is still running, show a lightweight loading state.
+            <div className="hidden text-sm text-muted sm:block">Checking session…</div>
+          ) : isAuthenticated ? (
+            <div className="hidden items-center gap-3 sm:flex">
+              <div className="text-right">
+                <p className="text-sm font-medium text-text">{user?.display_name || user?.email || 'Signed in'}</p>
+                <p className="text-xs text-muted">Signed in</p>
+              </div>
+              <button
+                type="button"
+                onClick={onLogout}
+                className="rounded-full border border-white/10 px-4 py-2 text-sm text-muted transition hover:border-accent/50 hover:text-accent"
+              >
+                Log out
+              </button>
+            </div>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={onSignUpClick}
+                className="hidden rounded-full bg-accent border border-white/10 px-4 py-2 text-sm text-black transition-all hover:bg-accent/90 active:scale-95 shadow-lg hover:shadow-xl hover:shadow-accent/20 sm:inline-flex"
+              >
+                Sign up
+              </button>
+              <button
+                type="button"
+                onClick={onLogInClick}
+                className="hidden rounded-full border border-white/10 px-4 py-2 text-sm text-muted transition hover:border-accent/50 hover:text-accent sm:inline-flex"
+              >
+                Log in
+              </button>
+            </>
+          )}
           <button
             type="button"
-            onClick={onSignUpClick}
-            className="hidden bg-accent rounded-full border border-white/10 px-4 py-2 text-sm text-black transition-all hover:bg-accent/90 active:scale-95 shadow-lg hover:shadow-xl hover:shadow-accent/20 sm:inline-flex"
-          >
-            Sign up
-          </button>
-          <button
-            type="button"
-            onClick={onLogInClick}
-            className="hidden rounded-full border border-white/10 px-4 py-2 text-sm text-muted transition hover:border-accent/50 hover:text-accent sm:inline-flex"
-          >
-            Log in
-          </button>
-          <button
-            type="button"
+            onClick={() => setIsMobileMenuOpen((open) => !open)}
+            aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isMobileMenuOpen}
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-text transition hover:border-accent/50 hover:text-accent sm:hidden"
           >
-            <IconMenu2 size={18} />
+            {isMobileMenuOpen ? <IconX size={18} /> : <IconMenu2 size={18} />}
           </button>
         </div>
       </div>
+
+      <MobileMenu
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        isAuthenticated={isAuthenticated}
+        user={user}
+        onLogout={onLogout}
+        onSignUpClick={onSignUpClick}
+        onLogInClick={onLogInClick}
+        isLoading={isLoading}
+      />
     </header>
   );
 }

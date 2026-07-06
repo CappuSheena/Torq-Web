@@ -12,10 +12,11 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 app.use(express.json());
+// Allow the Vite frontend to call the API from the local dev ports.
 app.use(
   cors({
-    origin: 'http://localhost:5173',
-    credentials: true
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:5174', 'http://127.0.0.1:5174'],
+    credentials: true,
   })
 );
 
@@ -24,6 +25,7 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.post('/api/auth/register', async (req, res, next) => {
+  // Create a new user account and hash the password before storing it.
   try {
     const { email, password, display_name } = req.body || {};
 
@@ -58,6 +60,7 @@ app.post('/api/auth/register', async (req, res, next) => {
 });
 
 app.post('/api/auth/login', async (req, res, next) => {
+  // Check the email and password, then issue a JWT when the credentials are valid.
   try {
     const { email, password } = req.body || {};
 
@@ -96,6 +99,7 @@ app.post('/api/auth/login', async (req, res, next) => {
 });
 
 app.get('/api/auth/me', authenticateToken, async (req, res, next) => {
+  // Return the current user from the JWT so the frontend can restore the session.
   try {
     const [rows] = await query('SELECT id, email, display_name FROM users WHERE id = ? LIMIT 1', [req.user.user_id]);
 
