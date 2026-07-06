@@ -29,7 +29,7 @@ function FeatureCard({ title, description, icon: Icon, image, imageAlt, featured
         <Icon size={28} />
       </div>
       <h2 className="font-display mt-4 text-2xl font-medium text-accent">{title}</h2>
-      <p className="mt-2 text-sm leading-6 text-muted">{description}</p>
+      <p className="mt-2 max-w-md text-base leading-6 text-muted">{description}</p>
     </div>
   );
 }
