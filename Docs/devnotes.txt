@@ -9,12 +9,16 @@ Onboarding should have a progress bar at the top.
 4. Back to being more informational, the current widgets should showcase what the app has to offer. "Track your maintenance, service and mot reminders in one place, always be ride ready with our pre ride checklist, take part in our communtiy" etc etc etc.
 When scrolling down, there should be a widget showcasing what the users phone could look like. A visual of a phone with the profile screen? I will develop this and place it into the docs area for implementation.
 
-7. There needs to be a footer. It should copyright Chantelle Lavery.
+5. There needs to be a footer. It should copyright Chantelle Lavery.
 
-8. The home screen will change to show all the user-specific details AFTER sign up, login and onboarding have taken place.
+6. The home screen will change to show all the user-specific details AFTER sign up, login and onboarding have taken place.
 
 06/07/2026
 
 Onboarding looks good. Progress bar functional. When submitting with empty field it says "Faield to fetch". This is general auth but it should be changed for the UI to detect empty fields. All the auth looks good so far. Home page is done bar adding visuals. Mobile view has aniamted hamburger menu.
 Next step to create profile dashboard. This follows the flow of signing up / logging in. 
 Need to make more mockups of the dashboard.
+Need to relearn react router to reroute other pages; look at Kids Patient Portal code.
+Have also noticed the progress bar at the top of the "Log in" part. Need to update the conditional slide state to remove it for a returning user. Logging in doesn't have 4 steps.
+Slowly discovering tailwind editables.. like w-3/5 is 40% width of parent.
+Need to update the page names, placeholders currently.
