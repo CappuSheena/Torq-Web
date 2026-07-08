@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
 import { IconX } from '@tabler/icons-react';
 
-// The app's core sections (see Docs/CLAUDE.md information architecture).
 // None of these have real pages/routes yet, so signed-out taps redirect to
 // sign-up and signed-in taps just close the menu for now.
+
+//The page names for now; UPDATE WITH REACT ROUTER
 const navItems = [
   { key: 'dashboard', label: 'Dashboard' },
   { key: 'checklist', label: 'Checklist' },
@@ -11,6 +12,7 @@ const navItems = [
   { key: 'profile', label: 'Profile' },
 ];
 
+//
 function MobileMenu({
   isOpen,
   onClose,
@@ -32,6 +34,7 @@ function MobileMenu({
     }
   }, [isOpen]);
 
+  // Close the drawer when the Escape key is pressed. Accessibillity
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (event) => {
@@ -41,6 +44,7 @@ function MobileMenu({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
+  // Handle navigation item clicks. If the user is not authenticated, clicking a nav item will open the sign-up overlay. If the user is authenticated, it will just close the menu for now. REMOVE THIS WHEN NEW ROUTES ARE ADDED
   const handleNavClick = () => {
     if (!isAuthenticated) {
       onSignUpClick();
@@ -49,6 +53,7 @@ function MobileMenu({
     onClose();
   };
 
+  // Handle sign-up, log-in, and log-out button clicks. These will call the appropriate callbacks passed in as props and then close the menu.
   const handleSignUp = () => {
     onSignUpClick();
     onClose();
@@ -66,9 +71,10 @@ function MobileMenu({
 
   return (
     <div className="sm:hidden">
-      {/* Backdrop — click outside the drawer to close */}
+      {/* click outside the drawer to close */}
       <div
         aria-hidden="true"
+        // changing the opacity and adding a little transition to make it look spicy.
         onClick={onClose}
         className={`fixed inset-0 z-40 bg-black/60 transition-opacity duration-300 ${
           isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
@@ -94,6 +100,7 @@ function MobileMenu({
           </button>
         </div>
 
+{/* // PLACEHOLDER FOR NAV BUTTONS. These are the same as the header nav buttons, but in a vertical layout for mobile. They will eventually link to the appropriate pages when those routes are added. For now, they just close the menu or open the sign-up overlay if the user is not authenticated. */}
         <nav className="flex flex-col divide-y divide-white/10 border-y border-white/10 px-4">
           {navItems.map((item) => {
             const isDashboard = item.key === 'dashboard';

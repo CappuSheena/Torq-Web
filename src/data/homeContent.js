@@ -1,3 +1,5 @@
+// 
+
 import {
   IconCalendarEvent,
   IconChecklist,
@@ -13,6 +15,7 @@ export const featureCards = [
       'Track your servicing, MOT and insurance renewals in one place, with reminders before anything lapses.',
     icon: IconTool,
     featured: true,
+    //PLACEHOLDER IMG - WILL BE REPLACED WITH SCREENSHOT OF FEATURE
     image: '/assets/screenshots/key-dates.png',
     imageAlt: 'Bike profile card showing MOT, tax and insurance key dates',
   },
@@ -21,6 +24,7 @@ export const featureCards = [
     description: 'See every service date and bike meet on one colour-coded calendar once you sign in.',
     icon: IconCalendarEvent,
     featured: true,
+    //PLACEHOLDER IMG - WILL BE REPLACED WITH SCREENSHOT OF FEATURE
     image: '/assets/screenshots/calendar.png',
     imageAlt: 'Mini calendar with colour-coded maintenance and bike meet dates',
   },
@@ -36,7 +40,7 @@ export const featureCards = [
   },
 ];
 
-// Onboarding is a UI stub for now — slides and copy are placeholders for the new flow.
+// Onboarding slides that appear when a new user signs up. Each slide has a title and body text. The slides are used in the OnboardingOverlay component. Like the features, any other slides added here update automatically and also expand the slider bar. 
 export const onboardingSlides = [
   {
     title: 'Create your account',

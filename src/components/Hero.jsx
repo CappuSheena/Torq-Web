@@ -1,7 +1,6 @@
 import heroImg from '../assets/heroImg.png';
 
 
-// marketing copy only — no personalised stats, there's no signed-in user yet
 function Hero({ onSignUpClick, onLogInClick }) {
   return (
     <div className="relative left-1/2 -mx-[50vw] w-screen min-h-[460px] overflow-hidden">
@@ -19,9 +18,6 @@ function Hero({ onSignUpClick, onLogInClick }) {
 
       {/* Bottom edge fade */}
       <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-page to-transparent" />
-
-      {/* The glow behind the headline*/}
-      <div className="pointer-events-none absolute -top-64 -right-64 h-96 w-96 rounded-full bg-accent/8 blur-3xl" />
 
       <div className="relative z-10 mx-auto grid h-full max-w-6xl gap-8 p-8 md:grid-cols-[1.35fr_1fr] md:items-center">
         <div>

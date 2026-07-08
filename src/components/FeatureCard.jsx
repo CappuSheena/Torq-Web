@@ -1,9 +1,12 @@
+// This details the feature cards on the landing page (when not logged in). It updates with how many features are added to homeContent.js and the cards will populate the page with however many cards are in the array. Some featured cards have screenshots, the others do not. They are styled differently to account.
+
 function FeatureCard({ title, description, icon: Icon, image, imageAlt, featured = false }) {
   if (featured) {
     return (
       <div className="rounded-[20px] border border-accent/50 bg-surface/80 p-6 shadow-flat transition-all sm:col-span-2 sm:grid sm:grid-cols-2 sm:items-center sm:gap-8">
         <div>
           <div className="w-fit rounded-2xl border border-accent/30 bg-accent/10 p-3 text-accent">
+          // tabler icon
             <Icon size={28} />
           </div>
           <h2 className="font-display mt-4 text-2xl font-medium text-accent">{title}</h2>

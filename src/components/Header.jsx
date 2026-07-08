@@ -4,6 +4,7 @@ import logoPng from '../assets/logo.png';
 import logoWebp from '../assets/logo.webp';
 import MobileMenu from './MobileMenu';
 
+// this header function assumes the user is not signed in automatically, and will show the sign up and log in buttons. If the user is signed in, it will show their name and a log out button. The header is responsive and will show a mobile menu on smaller screens. The mobile menu is a separate component that is imported here. The header also shows a loading state while the session check is running.
 function Header({ onSignUpClick, onLogInClick, isAuthenticated = false, user = null, onLogout, isLoading = false }) {
   // The header changes based on whether the user has a valid session.
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -22,6 +23,7 @@ function Header({ onSignUpClick, onLogInClick, isAuthenticated = false, user = n
                 width={130}
                 height={130}
                 className="h-full w-full object-contain"
+                // decoding="async" is used to tell the browser to decode the image asynchronously, which can improve page load
                 decoding="async"
               />
             </picture>
@@ -34,7 +36,7 @@ function Header({ onSignUpClick, onLogInClick, isAuthenticated = false, user = n
 
         <div className="flex items-center gap-3">
           {isLoading ? (
-            // While the session check is still running, show a lightweight loading state.
+            // While the session check is still running, show a loading state.
             <div className="hidden text-sm text-muted sm:block">Checking session…</div>
           ) : isAuthenticated ? (
             <div className="hidden items-center gap-3 sm:flex">
@@ -68,6 +70,7 @@ function Header({ onSignUpClick, onLogInClick, isAuthenticated = false, user = n
               </button>
             </>
           )}
+           {/* The mobile menu button is always shown on smaller screens, and toggles the mobile menu open and closed. It uses the IconMenu2 and IconX icons from Tabler Icons to indicate the menu state. The button has appropriate aria attributes for accessibility. */}
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen((open) => !open)}
@@ -75,11 +78,13 @@ function Header({ onSignUpClick, onLogInClick, isAuthenticated = false, user = n
             aria-expanded={isMobileMenuOpen}
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-text transition hover:border-accent/50 hover:text-accent sm:hidden"
           >
+            {/* Mobile menu buttons, hamburger or X */}
             {isMobileMenuOpen ? <IconX size={18} /> : <IconMenu2 size={18} />}
           </button>
         </div>
       </div>
 
+{/* // The mobile menu is a separate component that is rendered here. It receives props to control its open state, authentication state, and callbacks for logging out and opening the sign up and log in modals. The mobile menu is hidden on larger screens and only shown when the hamburger button is clicked on smaller screens. */}
       <MobileMenu
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}

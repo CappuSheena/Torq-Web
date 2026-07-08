@@ -9,6 +9,7 @@ import { authenticateToken } from './middleware/auth.js';
 dotenv.config();
 
 const app = express();
+// Checks ENV for dedicated port, or defaults to 4000.
 const PORT = process.env.PORT || 4000;
 
 app.use(express.json());
@@ -29,28 +30,33 @@ app.post('/api/auth/register', async (req, res, next) => {
   try {
     const { email, password, display_name } = req.body || {};
 
+    //If theres no email, password or display name, return a 400 error
     if (!email || !password || !display_name) {
       return res.status(400).json({ error: 'email, password, and display_name are required.' });
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
-    const [existingRows] = await query('SELECT id FROM users WHERE email = ? LIMIT 1', [normalizedEmail]);
+    // trum down the email whitespace and make it lowercase to avoid duplicates
+    const normalisedEmail = email.trim().toLowerCase();
+    const [existingRows] = await query('SELECT id FROM users WHERE email = ? LIMIT 1', [normalisedEmail]);
 
+    // checks if there is already an email in the database, if so return a 409 error
     if (existingRows.length > 0) {
       return res.status(409).json({ error: 'An account with that email already exists.' });
     }
 
+    // hash the password
     const passwordHash = await bcrypt.hash(password, 10);
     const [result] = await query(
       'INSERT INTO users (email, password_hash, display_name, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())',
-      [normalizedEmail, passwordHash, display_name.trim()]
+      [normalisedEmail, passwordHash, display_name.trim()]
     );
 
+    // Return the new user data (excluding the password hash)
     res.status(201).json({
       message: 'User registered successfully.',
       user: {
         id: result.insertId,
-        email: normalizedEmail,
+        email: normalisedEmail,
         display_name: display_name.trim()
       }
     });
@@ -59,17 +65,22 @@ app.post('/api/auth/register', async (req, res, next) => {
   }
 });
 
+// Note: The user is not automatically logged in after registration; they must log in separately.
+
 app.post('/api/auth/login', async (req, res, next) => {
   // Check the email and password, then issue a JWT when the credentials are valid.
   try {
     const { email, password } = req.body || {};
 
+    // NEED TO FIX - RETURNS A FETCH ERROR CURRENTLY
     if (!email || !password) {
       return res.status(400).json({ error: 'email and password are required.' });
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
-    const [rows] = await query('SELECT id, email, password_hash, display_name FROM users WHERE email = ? LIMIT 1', [normalizedEmail]);
+    // Normalize the email to avoid case sensitivity issues and trim whitespace
+
+    const normalisedEmail = email.trim().toLowerCase();
+    const [rows] = await query('SELECT id, email, password_hash, display_name FROM users WHERE email = ? LIMIT 1', [normalisedEmail]);
 
     if (rows.length === 0) {
       return res.status(401).json({ error: 'Invalid email or password.' });
@@ -78,12 +89,14 @@ app.post('/api/auth/login', async (req, res, next) => {
     const user = rows[0];
     const passwordMatches = await bcrypt.compare(password, user.password_hash);
 
+    // If the password doesn't match, shows an error but doesn't specify what was wrong
     if (!passwordMatches) {
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
-
+    // If the password matches, create a JWT and return it to the client
     const token = jwt.sign({ user_id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
+    // Return the token and user info (excluding the password hash) to the client
     res.json({
       message: 'Login successful.',
       token,
@@ -113,6 +126,7 @@ app.get('/api/auth/me', authenticateToken, async (req, res, next) => {
   }
 });
 
+// Global error handle just tostop the server from crashing and leaving the user hanging
 app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(err.statusCode || 500).json({
@@ -120,6 +134,7 @@ app.use((err, _req, res, _next) => {
   });
 });
 
+// When the server starts the console will log the port (and just to tell me its working)
 app.listen(PORT, () => {
   console.log(`TORQ backend listening on port ${PORT}`);
 });
