@@ -29,7 +29,7 @@ function Hero({ onSignUpClick, onLogInClick }) {
           <h1 className="font-display mt-3 text-4xl font-bold sm:text-5xl leading-tight">
             Keep the ride ready and the community close.
           </h1>
-          <p className="mt-4 max-w-xl text-sm leading-6 text-muted sm:text-base">
+          <p className="mt-4 w-3/5 text-sm leading-6 text-muted sm:text-base">
             Track maintenance, service and MOT reminders in one place, stay ride-ready with the pre-ride checklist, and find your local riding community.
           </p>
 
