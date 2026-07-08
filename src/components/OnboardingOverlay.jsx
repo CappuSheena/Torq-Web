@@ -119,7 +119,7 @@ function OnboardingOverlay({
           {step === 0 && (
             <div className="space-y-4">
               {mode === 'register' && (
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <label className="block text-sm font-medium text-text">Display name</label>
                   <input
                     value={displayName}
@@ -131,7 +131,7 @@ function OnboardingOverlay({
                 </div>
               )}
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <label className="block text-sm font-medium text-text">Email</label>
                 <input
                   value={email}
@@ -142,7 +142,7 @@ function OnboardingOverlay({
                 />
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <label className="block text-sm font-medium text-text">Password</label>
                 <input
                   value={password}
@@ -174,7 +174,7 @@ function OnboardingOverlay({
 
           {step === 1 && (
             <div className="space-y-4">
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <label className="block text-sm font-medium text-text">Make</label>
                 <select
                   value={bikeMake}
@@ -187,7 +187,7 @@ function OnboardingOverlay({
                 </select>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <label className="block text-sm font-medium text-text">Model</label>
                 <select
                   value={bikeModel}
@@ -200,7 +200,7 @@ function OnboardingOverlay({
                 </select>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <label className="block text-sm font-medium text-text">Year</label>
                 <select
                   value={bikeYear}
@@ -217,7 +217,7 @@ function OnboardingOverlay({
 
           {step === 2 && (
             <div className="space-y-4">
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <label className="block text-sm font-medium text-text">MOT due</label>
                 <input
                   value={motDue}
@@ -227,7 +227,7 @@ function OnboardingOverlay({
                 />
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <label className="block text-sm font-medium text-text">Tax due</label>
                 <input
                   value={taxDue}
@@ -237,7 +237,7 @@ function OnboardingOverlay({
                 />
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <label className="block text-sm font-medium text-text">Insurance renews</label>
                 <input
                   value={insuranceDue}
