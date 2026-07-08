@@ -6,7 +6,7 @@ function FeatureCard({ title, description, icon: Icon, image, imageAlt, featured
       <div className="rounded-[20px] border border-accent/50 bg-surface/80 p-6 shadow-flat transition-all sm:col-span-2 sm:grid sm:grid-cols-2 sm:items-center sm:gap-8">
         <div>
           <div className="w-fit rounded-2xl border border-accent/30 bg-accent/10 p-3 text-accent">
-          // tabler icon
+          {/* // tabler icon */}
             <Icon size={28} />
           </div>
           <h2 className="font-display mt-4 text-2xl font-medium text-accent">{title}</h2>
