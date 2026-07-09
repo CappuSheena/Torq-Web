@@ -91,9 +91,13 @@ function App() {
   };
 
   const goToNextSlide = () => {
-    // last slide's button closes the popup instead of advancing further
+    // Last slide's button closes the popup instead of advancing further, and
+    // (its label literally reads "Go to dashboard") sends the now-signed-in
+    // rider to their dashboard instead of leaving them on whatever page was
+    // behind the modal.
     if (onboardingStep === onboardingSlides.length - 1) {
       closeOnboarding();
+      navigate('/dashboard');
       return;
     }
     setOnboardingStep((step) => step + 1);
@@ -141,9 +145,9 @@ function App() {
         goToNextSlide();
         return true;
       }
-
-      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+      
         // This is the login path for people who already have an account.
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -157,6 +161,8 @@ function App() {
 
       persistAuth(data.token, data.user);
       closeOnboarding();
+      // Existing users land straight on their dashboard after signing in.
+      navigate('/dashboard');
       return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to complete that request.';
