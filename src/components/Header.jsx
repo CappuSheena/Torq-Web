@@ -89,7 +89,6 @@ function Header({
             <div className="hidden items-center gap-3 sm:flex">
               <div className="text-right">
                 <p className="text-sm font-medium text-text">{user?.display_name || user?.email || 'Signed in'}</p>
-                <p className="text-xs text-muted">Signed in</p>
               </div>
               <button
                 type="button"

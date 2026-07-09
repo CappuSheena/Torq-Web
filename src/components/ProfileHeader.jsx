@@ -16,19 +16,12 @@ function ProfileHeader({ user, onLogout }) {
       </div>
 
       <div className="flex gap-3">
-        {/* Stub — no edit-profile flow built yet */}
+        {/* PLACEHOLDER - NEED TO CREATE EDIT MODAL */}
         <button
           type="button"
           className="rounded-full border border-white/10 px-4 py-2 text-sm text-text transition hover:border-accent/50 hover:text-accent"
         >
-          Edit profile
-        </button>
-        <button
-          type="button"
-          onClick={onLogout}
-          className="rounded-full border border-white/10 px-4 py-2 text-sm text-muted transition hover:border-accent/50 hover:text-accent"
-        >
-          Log out
+          Edit my profile
         </button>
       </div>
     </div>
