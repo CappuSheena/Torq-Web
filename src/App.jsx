@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Header from './components/Header';
-import Hero from './components/Hero';
-import FeatureCard from './components/FeatureCard';
-import PhonePreview from './components/PhonePreview';
+import HomePage from './components/HomePage';
 import OnboardingOverlay from './components/OnboardingOverlay';
+import ProfilePage from './components/ProfilePage';
 import Footer from './components/Footer';
-import { featureCards, onboardingSlides } from './data/homeContent';
+import { onboardingSlides } from './data/homeContent';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 const TOKEN_STORAGE_KEY = 'torq_token';
@@ -23,6 +23,7 @@ function App() {
   const [authError, setAuthError] = useState('');
   const [authSubmitting, setAuthSubmitting] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
+  const navigate = useNavigate();
   // Track whether the modal is open and whether the user is considered signed in.
   const isOnboardingOpen = onboardingStep !== null;
   const isAuthenticated = Boolean(authUser) || Boolean(authToken);
@@ -172,39 +173,43 @@ function App() {
     closeOnboarding();
   };
 
+  const goToDashboard = () => navigate('/dashboard');
+  const goToHome = () => navigate('/');
+
   return (
     <div className="min-h-screen bg-page text-text">
       <Header
         onSignUpClick={openSignUp}
         onLogInClick={openLogIn}
+        onProfileClick={goToDashboard}
+        onLogoClick={goToHome}
         isAuthenticated={isAuthenticated}
         user={authUser}
         onLogout={handleLogout}
         isLoading={authLoading}
       />
 
-      <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-        <section className="space-y-6">
-          <Hero onSignUpClick={openSignUp} onLogInClick={openLogIn} />
-
-          {/* featureCards lives in data/homeContent.js */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            {featureCards.map((card) => (
-              <FeatureCard
-                key={card.title}
-                title={card.title}
-                description={card.description}
-                icon={card.icon}
-                featured={card.featured}
-                image={card.image}
-                imageAlt={card.imageAlt}
-              />
-            ))}
-          </div>
-
-          <PhonePreview />
-        </section>
-      </main>
+      <Routes>
+        <Route path="/" element={<HomePage onSignUpClick={openSignUp} onLogInClick={openLogIn} />} />
+        <Route
+          path="/dashboard"
+          // Profile is authenticated-only — bounce back to the home page for a
+          // signed-out visitor. Direct navigation/refresh lands here before
+          // restoreSession's /api/auth/me call resolves, so wait for authLoading
+          // to clear before deciding — otherwise a valid session gets redirected
+          // away before it has a chance to restore.
+          element={
+            authLoading ? (
+              <p className="px-4 py-10 text-center text-sm text-muted">Checking session…</p>
+            ) : isAuthenticated ? (
+              <ProfilePage user={authUser} onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
 
       <Footer />
 

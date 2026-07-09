@@ -1,18 +1,7 @@
 import { useEffect } from 'react';
 import { IconX } from '@tabler/icons-react';
+import { navItems } from '../data/navigation';
 
-// None of these have real pages/routes yet, so signed-out taps redirect to
-// sign-up and signed-in taps just close the menu for now.
-
-//The page names for now; UPDATE WITH REACT ROUTER
-const navItems = [
-  { key: 'dashboard', label: 'Dashboard' },
-  { key: 'checklist', label: 'Checklist' },
-  { key: 'community', label: 'Community' },
-  { key: 'profile', label: 'Profile' },
-];
-
-//
 function MobileMenu({
   isOpen,
   onClose,
@@ -21,6 +10,7 @@ function MobileMenu({
   onLogout,
   onSignUpClick,
   onLogInClick,
+  onProfileClick,
   isLoading = false,
 }) {
   useEffect(() => {
@@ -44,11 +34,17 @@ function MobileMenu({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Handle navigation item clicks. If the user is not authenticated, clicking a nav item will open the sign-up overlay. If the user is authenticated, it will just close the menu for now. REMOVE THIS WHEN NEW ROUTES ARE ADDED
-  const handleNavClick = () => {
+  // Handle navigation item clicks. If the user is not authenticated, clicking any nav item opens
+  // the sign-up overlay instead. If authenticated, "dashboard" is wired to the real Profile page
+  // (only its nav label reads "Dashboard"); everything else still has no page built, so it just
+  // closes the menu. REMOVE THIS WHEN NEW ROUTES ARE ADDED
+  const handleNavClick = (key) => {
     if (!isAuthenticated) {
       onSignUpClick();
       return;
+    }
+    if (key === 'dashboard') {
+      onProfileClick?.();
     }
     onClose();
   };
@@ -102,22 +98,16 @@ function MobileMenu({
 
 {/* // PLACEHOLDER FOR NAV BUTTONS. These are the same as the header nav buttons, but in a vertical layout for mobile. They will eventually link to the appropriate pages when those routes are added. For now, they just close the menu or open the sign-up overlay if the user is not authenticated. */}
         <nav className="flex flex-col divide-y divide-white/10 border-y border-white/10 px-4">
-          {navItems.map((item) => {
-            const isDashboard = item.key === 'dashboard';
-            const label = isDashboard && isAuthenticated ? 'My Dashboard' : item.label;
-            return (
-              <button
-                key={item.key}
-                type="button"
-                onClick={handleNavClick}
-                className={`py-4 text-left text-sm transition hover:text-accent ${
-                  isDashboard && isAuthenticated ? 'font-semibold text-accent' : 'text-text'
-                }`}
-              >
-                {label}
-              </button>
-            );
-          })}
+          {navItems.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => handleNavClick(item.key)}
+              className="py-4 text-left text-sm text-text transition hover:text-accent"
+            >
+              {item.label}
+            </button>
+          ))}
         </nav>
 
         <div className="mt-auto px-4 py-6">

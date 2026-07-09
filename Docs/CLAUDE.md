@@ -71,8 +71,7 @@ reflows next to the sidebar rather than widening.
   upload exists), display name, email, edit/logout actions
 - *My bikes*: stacked bike cards. Each user can own multiple bikes (some riders
   own more than one and do their own servicing — don't assume a single bike per
-  account). Exactly one bike is flagged **default** (small star badge, top-right
-  of its card) and that's the bike shown in the dashboard sidebar/snapshot.
+  account).
 - Each bike card, when expanded/opened, shows: mileage, last service, key dates
   (MOT/tax/insurance — colour the one that's actually due soon in orange, leave
   the others neutral), a per-bike mini calendar of its own maintenance dates, and
@@ -87,7 +86,7 @@ Core relational chain:
 
 ```
 users (user_id PK, display_name, email UNIQUE, password_hash, avatar_url, created_at)
-  └─ 1:N → bikes (bike_id PK, user_id FK, make, model, year, nickname, is_primary,
+  └─ 1:N → bikes (bike_id PK, user_id FK, make, model, year,
                    spec_json, mileage, mot_date, tax_date, insurance_date,
                    last_synced_at, created_at)
        └─ 1:N → maintenance_records (record_id PK, bike_id FK, task_type,
@@ -155,7 +154,7 @@ timestamp shown, rather than hiding the weather section entirely.
 1. Design and migrate the MySQL schema above; get Express talking to it
 2. Auth: registration, login, JWT issuance, logout, bcrypt hashing
 3. Bike CRUD (including the API Ninjas cascading dropdowns and spec caching),
-   multi-bike support with the default-bike flag
+   multi-bike support
 4. Maintenance records and the pre-ride checklist (session-only state)
 5. Dashboard frontend (mobile first, then desktop sidebar variant)
 6. Profile frontend (mobile first, then desktop variant)

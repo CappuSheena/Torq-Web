@@ -7,7 +7,7 @@ function PhonePreview() {
       <div className="w-fit rounded-2xl border border-accent/30 bg-accent/10 p-3 text-accent">
         <IconDeviceMobile size={28} />
       </div>
-      <h2 className="font-display mt-4 text-lg font-medium text-accent">See it on your phone</h2>
+      <h2 className="font-display mt-4 text-lg font-medium text-text">See it on your phone</h2>
       <p className="mt-2 max-w-md text-base leading-6 text-muted">
         Your profile, bikes and reminders travel with you. A full preview of the mobile screens is
         coming soon.

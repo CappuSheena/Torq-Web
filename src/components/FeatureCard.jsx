@@ -9,7 +9,7 @@ function FeatureCard({ title, description, icon: Icon, image, imageAlt, featured
           {/* // tabler icon */}
             <Icon size={28} />
           </div>
-          <h2 className="font-display mt-4 text-2xl font-medium text-accent">{title}</h2>
+          <h2 className="font-display mt-4 text-2xl font-medium text-white">{title}</h2>
           <p className="mt-2 max-w-md text-base leading-6 text-muted">{description}</p>
         </div>
 
@@ -31,7 +31,7 @@ function FeatureCard({ title, description, icon: Icon, image, imageAlt, featured
       <div className="w-fit rounded-2xl border border-accent/30 bg-accent/10 p-3 text-accent">
         <Icon size={28} />
       </div>
-      <h2 className="font-display mt-4 text-2xl font-medium text-accent">{title}</h2>
+      <h2 className="font-display mt-4 text-2xl font-medium text-white">{title}</h2>
       <p className="mt-2 max-w-md text-base leading-6 text-muted">{description}</p>
     </div>
   );

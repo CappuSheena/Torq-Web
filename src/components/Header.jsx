@@ -1,18 +1,46 @@
 import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { IconMenu2, IconX } from '@tabler/icons-react';
 import logoPng from '../assets/logo.png';
 import logoWebp from '../assets/logo.webp';
 import MobileMenu from './MobileMenu';
+import { navItems } from '../data/navigation';
 
 // this header function assumes the user is not signed in automatically, and will show the sign up and log in buttons. If the user is signed in, it will show their name and a log out button. The header is responsive and will show a mobile menu on smaller screens. The mobile menu is a separate component that is imported here. The header also shows a loading state while the session check is running.
-function Header({ onSignUpClick, onLogInClick, isAuthenticated = false, user = null, onLogout, isLoading = false }) {
+function Header({
+  onSignUpClick,
+  onLogInClick,
+  onProfileClick,
+  onLogoClick,
+  isAuthenticated = false,
+  user = null,
+  onLogout,
+  isLoading = false,
+}) {
   // The header changes based on whether the user has a valid session.
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // Used to underline/colour the active nav item — only "dashboard" can ever
+  // match right now since it's the only item with a real route (it links to
+  // the Profile page/component; only the nav label reads "Dashboard").
+  const location = useLocation();
+
+  // Same rule as the mobile drawer: signed-out taps open sign-up; signed-in
+  // "dashboard" goes to the real page, everything else has no page built yet.
+  const handleNavClick = (key) => {
+    if (!isAuthenticated) {
+      onSignUpClick();
+      return;
+    }
+    if (key === 'dashboard') {
+      onProfileClick?.();
+    }
+  };
 
   return (
     <header className="border-b border-white/10 bg-page/95">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-3">
+        {/* Logo/wordmark doubles as the "go home" control — the only way back from Profile right now */}
+        <button type="button" onClick={onLogoClick} className="flex items-center gap-3">
           <div className="flex h-10 w-20 items-center justify-center rounded-full p-1">
             {/* WebP first, PNG fallback for older browsers */}
             <picture>
@@ -28,13 +56,32 @@ function Header({ onSignUpClick, onLogInClick, isAuthenticated = false, user = n
               />
             </picture>
           </div>
-          <div>
+          <div className="text-left">
             <p className="font-display text-6xl font-bold tracking-[0.2em] text-text">TORQ</p>
             <p className="text-xs text-muted font-family font-medium">Maintainance Made Measy</p>
           </div>
-        </div>
+        </button>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-6">
+          {/* Tablet/desktop nav — mobile gets the same items via the hamburger drawer instead */}
+          <nav className="hidden items-center gap-6 sm:flex">
+            {navItems.map((item) => {
+              const isActive = item.key === 'dashboard' && location.pathname === '/dashboard';
+              return (
+                <button
+                  key={item.key}
+                  type="button"
+                  onClick={() => handleNavClick(item.key)}
+                  className={`text-sm font-medium transition ${
+                    isActive ? 'text-accent underline underline-offset-4' : 'text-muted hover:text-text'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+          </nav>
+
           {isLoading ? (
             // While the session check is still running, show a loading state.
             <div className="hidden text-sm text-muted sm:block">Checking session…</div>
@@ -93,6 +140,7 @@ function Header({ onSignUpClick, onLogInClick, isAuthenticated = false, user = n
         onLogout={onLogout}
         onSignUpClick={onSignUpClick}
         onLogInClick={onLogInClick}
+        onProfileClick={onProfileClick}
         isLoading={isLoading}
       />
     </header>

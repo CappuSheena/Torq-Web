@@ -1,6 +1,17 @@
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
+
+// App uses react-router hooks (useNavigate, <Routes>), so it needs a Router
+// ancestor in tests the same way main.jsx provides one via <BrowserRouter>.
+function renderApp() {
+  return render(
+    <MemoryRouter>
+      <App />
+    </MemoryRouter>
+  );
+}
 
 describe('Torq home screen', () => {
   beforeEach(() => {
@@ -13,7 +24,7 @@ describe('Torq home screen', () => {
   });
 
   it('renders the main home page content', () => {
-    render(<App />);
+    renderApp();
 
     expect(screen.getByText(/keep the ride ready/i)).toBeInTheDocument();
     expect(screen.getByText(/maintenance status/i)).toBeInTheDocument();
@@ -31,7 +42,7 @@ describe('Torq home screen', () => {
       })
     );
 
-    render(<App />);
+    renderApp();
 
     // The header and the mobile menu drawer both render the signed-in state.
     expect((await screen.findAllByText(/signed in/i)).length).toBeGreaterThan(0);
