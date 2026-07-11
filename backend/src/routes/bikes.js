@@ -25,7 +25,6 @@ function toBikeResponse(row) {
     taxDate: row.tax_expiry_date,
     insuranceDate: row.insurance_expiry_date,
     spec,
-    isPrimary: Boolean(row.is_primary),
     lastSyncedAt: row.last_synced_at,
     createdAt: row.created_at,
   };
@@ -57,8 +56,7 @@ async function getOwnedBikeOrRespond(req, res) {
   return rows[0];
 }
 
-// POST /api/bikes — creates a bike for the logged in user. The first bike a
-// user creates automatically becomes their primary one.
+// POST /api/bikes — creates a bike for the logged in user.
 //
 // Note on `spec`: this is NOT looked up again here. The frontend already
 // called /api/motorcycles/spec earlier (see motorcycles.js) to search API
@@ -75,8 +73,6 @@ router.post('/', async (req, res, next) => {
     }
 
     const userId = req.user.user_id;
-    const [existingBikes] = await query('SELECT id FROM bikes WHERE user_id = ? LIMIT 1', [userId]);
-    const isPrimary = existingBikes.length === 0;
     // spec_json is a JSON column, but it's still just stored as text under
     // the hood — JSON.stringify() turns the JS object into that text.
     // toBikeResponse() (below) does the reverse (JSON.parse) when we read
@@ -86,8 +82,8 @@ router.post('/', async (req, res, next) => {
 
     const [result] = await query(
       `INSERT INTO bikes
-        (user_id, make, model, year, nickname, mot_expiry_date, tax_expiry_date, insurance_expiry_date, spec_json, is_primary, last_synced_at, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+        (user_id, make, model, year, nickname, mot_expiry_date, tax_expiry_date, insurance_expiry_date, spec_json, last_synced_at, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         userId,
         make.trim(),
@@ -98,7 +94,6 @@ router.post('/', async (req, res, next) => {
         tax_date || null,
         insurance_date || null,
         specJson,
-        isPrimary,
         lastSyncedAt,
       ]
     );
@@ -110,11 +105,11 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-// GET /api/bikes — every bike belonging to the logged in user, primary first.
+// GET /api/bikes — every bike belonging to the logged in user, oldest first.
 router.get('/', async (req, res, next) => {
   try {
     const [rows] = await query(
-      'SELECT * FROM bikes WHERE user_id = ? ORDER BY is_primary DESC, created_at ASC',
+      'SELECT * FROM bikes WHERE user_id = ? ORDER BY created_at ASC',
       [req.user.user_id]
     );
     res.json({ bikes: rows.map(toBikeResponse) });
