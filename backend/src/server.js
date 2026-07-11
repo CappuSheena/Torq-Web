@@ -5,6 +5,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import pool, { query } from './config/db.js';
 import { authenticateToken } from './middleware/auth.js';
+import bikesRouter from './routes/bikes.js';
+import motorcyclesRouter from './routes/motorcycles.js';
 
 dotenv.config();
 
@@ -24,6 +26,9 @@ app.use(
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
+
+app.use('/api/motorcycles', motorcyclesRouter);
+app.use('/api/bikes', bikesRouter);
 
 app.post('/api/auth/register', async (req, res, next) => {
   // Create a new user account and hash the password before storing it.

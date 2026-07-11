@@ -1,6 +1,6 @@
 // I started with trying to add the abillity to add your own 'avatar' to your profile but this is OOS. There is some code here relating to it (like the cmaera icon and possibly routing the img url in the db) that meeds to be removed.
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   IconCamera,
   IconCheck,
@@ -9,6 +9,26 @@ import {
 
 // importing the onboarding slides from homeContent.js. Simillar to the feature cards, it is dynamic and will update with however many cards are in the array.
 import { onboardingSlides } from '../data/homeContent';
+import { API_BASE_URL } from '../lib/api';
+
+// API Ninjas' makes/models list endpoints are paywalled on the free tier
+// (only the spec-search endpoint works), so Make stays a curated static
+// list rather than something fetched live.
+const BIKE_MAKES = [
+  'Triumph',
+  'Honda',
+  'Yamaha',
+  'Kawasaki',
+  'Suzuki',
+  'Ducati',
+  'BMW',
+  'KTM',
+  'Harley-Davidson',
+  'Aprilia',
+  'Royal Enfield',
+  'Indian',
+  'Moto Guzzi',
+];
 
 function OnboardingOverlay({
   // Props for managing the onboarding flow
@@ -20,6 +40,7 @@ function OnboardingOverlay({
   onAuthSubmit,
   authError,
   isSubmitting,
+  authToken,
 }) {
   // Determine the current slide and whether it's the last one
   const slide = onboardingSlides[step];
@@ -32,14 +53,28 @@ function OnboardingOverlay({
   //Legacy code for avatar upload, leaving it for now because it works without it
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
-  // this will be populated with ninja API
   const [bikeMake, setBikeMake] = useState('Triumph');
-  const [bikeModel, setBikeModel] = useState('Street Triple 765 R');
-  const [bikeYear, setBikeYear] = useState('2020');
+  // Model is a live search against /api/motorcycles/spec rather than free
+  // text — picking an exact result avoids silently attaching the wrong
+  // bike's spec (e.g. typing "cbf" and getting whatever fuzzy-matched
+  // first). selectedBike holds the exact chosen result (which *is* the
+  // full spec object); manual entry is the explicit fallback when a bike
+  // genuinely isn't in API Ninjas' data.
+  const [modelQuery, setModelQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState('');
+  const [selectedBike, setSelectedBike] = useState(null);
+  const [isManualEntry, setIsManualEntry] = useState(false);
+  const [manualModel, setManualModel] = useState('');
+  const [manualYear, setManualYear] = useState('');
   // option user input
   const [motDue, setMotDue] = useState('');
   const [taxDue, setTaxDue] = useState('');
   const [insuranceDue, setInsuranceDue] = useState('');
+  const [specError, setSpecError] = useState('');
+  const [isSavingBike, setIsSavingBike] = useState(false);
+  const [saveBikeError, setSaveBikeError] = useState('');
 
   // Hides the back button from the first step
   const showBackButton = step > 0;
@@ -72,21 +107,161 @@ function OnboardingOverlay({
     setMode((current) => (current === 'register' ? 'login' : 'register'));
   };
 
-  // usual prevent default, then if the step ISNT 0, it will just move onto the next step. If it is 0, it calls onAuthSubmit with the mode, email, password, and displayName. This is where the actual registration or login happens.
+  // Debounced live search against /api/motorcycles/spec as the rider types
+  // a model — results are picked by clicking, never guessed.
+  useEffect(() => {
+    if (isManualEntry || selectedBike) return;
+
+    const trimmedQuery = modelQuery.trim();
+    if (trimmedQuery.length < 2) {
+      setSearchResults([]);
+      setSearchError('');
+      return;
+    }
+
+    setSearchLoading(true);
+    const timeoutId = setTimeout(async () => {
+      try {
+        const params = new URLSearchParams({ make: bikeMake, model: trimmedQuery });
+        const response = await fetch(`${API_BASE_URL}/api/motorcycles/spec?${params.toString()}`);
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Unable to search right now.');
+        }
+
+        const results = data.results || [];
+        setSearchResults(results);
+        setSearchError(results.length === 0 ? `No matches for "${trimmedQuery}".` : '');
+      } catch (error) {
+        setSearchResults([]);
+        setSearchError(error instanceof Error ? error.message : 'Unable to search right now.');
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(timeoutId);
+  }, [modelQuery, bikeMake, isManualEntry, selectedBike]);
+
+  // Make affects which spec results are valid, so changing it clears
+  // anything picked/typed against the previous make.
+  const handleMakeChange = (event) => {
+    setBikeMake(event.target.value);
+    setSelectedBike(null);
+    setModelQuery('');
+    setSearchResults([]);
+    setSearchError('');
+    setIsManualEntry(false);
+    setManualModel('');
+    setManualYear('');
+  };
+
+  const handleSelectResult = (result) => {
+    setSelectedBike(result);
+    setSearchResults([]);
+    setSpecError('');
+  };
+
+  const handleClearSelection = () => {
+    setSelectedBike(null);
+    setModelQuery('');
+    setSearchResults([]);
+  };
+
+  const handleCancelManualEntry = () => {
+    setIsManualEntry(false);
+    setManualModel('');
+    setManualYear('');
+  };
+
+  // Creates the bike via POST /api/bikes using whatever key-date values are
+  // passed in (Skip explicitly passes nulls). Returns whether it succeeded
+  // so the caller knows whether it's safe to advance to the next slide.
+  const createBike = async ({ motDate, taxDate, insuranceDate }) => {
+    setSaveBikeError('');
+    setIsSavingBike(true);
+
+    try {
+      const model = selectedBike ? selectedBike.model : manualModel.trim();
+      const year = selectedBike ? Number(selectedBike.year) : Number(manualYear);
+
+      const response = await fetch(`${API_BASE_URL}/api/bikes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          make: bikeMake,
+          model,
+          year,
+          mot_date: motDate || null,
+          tax_date: taxDate || null,
+          insurance_date: insuranceDate || null,
+          spec: selectedBike || null,
+        }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Unable to save your bike.');
+      }
+
+      return true;
+    } catch (error) {
+      setSaveBikeError(error instanceof Error ? error.message : 'Unable to save your bike.');
+      return false;
+    } finally {
+      setIsSavingBike(false);
+    }
+  };
+
+  // Step 2's "Continue" saves whatever dates were entered; "Skip for now"
+  // saves the bike with all three dates left null.
+  const handleContinueWithDates = async () => {
+    const saved = await createBike({ motDate: motDue, taxDate: taxDue, insuranceDate: insuranceDue });
+    if (saved) onNext();
+  };
+
+  const handleSkipDates = async () => {
+    const saved = await createBike({ motDate: null, taxDate: null, insuranceDate: null });
+    if (saved) onNext();
+  };
+
+  // usual prevent default. Step 0 calls onAuthSubmit (register/login). Step 1
+  // just checks a bike has actually been picked (via search) or manually
+  // entered before advancing. Any other step just advances.
   const handlePrimaryAction = async (event) => {
     event.preventDefault();
 
-    if (step !== 0) {
+    if (step === 0) {
+      await onAuthSubmit({
+        mode,
+        email: email.trim(),
+        password,
+        displayName: displayName.trim(),
+      });
+      return;
+    }
+
+    if (step === 1) {
+      const hasConfirmedBike = Boolean(selectedBike) || (isManualEntry && manualModel.trim() && manualYear);
+      if (!hasConfirmedBike) {
+        setSpecError(
+          isManualEntry
+            ? 'Please fill in model and year.'
+            : 'Please search and select your bike, or add it manually.'
+        );
+        return;
+      }
+      setSpecError('');
       onNext();
       return;
     }
 
-    await onAuthSubmit({
-      mode,
-      email: email.trim(),
-      password,
-      displayName: displayName.trim(),
-    });
+    onNext();
   };
 
   // The main orange button label changes based on current step AND mode. If the user is on the first step, it will say "Create account" or "Log in" depending on the mode. If the user is on the last step, it will say "Go to dashboard". Otherwise, it will say "Continue".
@@ -189,47 +364,133 @@ function OnboardingOverlay({
             </div>
           )}
 
-{/* //PLACEHOLDER BIKE INFO. Will be updated with NinjaAPI to pull bike info */}
+{/* Make is a curated static list (API Ninjas' makes/models list endpoints
+    are paywalled on the free tier). Model is a live search against
+    /api/motorcycles/spec — the rider picks an exact result rather than
+    typing free text, so we never silently cache the wrong bike's spec. */}
           {step === 1 && (
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-text">Make</label>
                 <select
                   value={bikeMake}
-                  onChange={(event) => setBikeMake(event.target.value)}
+                  onChange={handleMakeChange}
                   className="w-full rounded-2xl border border-white/10 bg-[#0D1520] px-4 py-3 text-sm text-text focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
                 >
-                  <option>Triumph</option>
-                  <option>Honda</option>
-                  <option>Yamaha</option>
+                  {BIKE_MAKES.map((make) => (
+                    <option key={make}>{make}</option>
+                  ))}
                 </select>
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-text">Model</label>
-                <select
-                  value={bikeModel}
-                  onChange={(event) => setBikeModel(event.target.value)}
-                  className="w-full rounded-2xl border border-white/10 bg-[#0D1520] px-4 py-3 text-sm text-text focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-                >
-                  <option>Street Triple 765 R</option>
-                  <option>CB650R</option>
-                  <option>MT-07</option>
-                </select>
-              </div>
+              {selectedBike ? (
+                <div className="flex items-center justify-between rounded-2xl border border-accent/30 bg-accent/10 px-4 py-3">
+                  <div>
+                    <p className="text-sm font-semibold text-text">{selectedBike.model}</p>
+                    <p className="text-xs text-muted">
+                      {selectedBike.year}
+                      {selectedBike.type ? ` · ${selectedBike.type}` : ''}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleClearSelection}
+                    className="text-xs font-semibold text-accent transition hover:text-accent/80"
+                  >
+                    Change
+                  </button>
+                </div>
+              ) : isManualEntry ? (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-text">Model</label>
+                    <input
+                      value={manualModel}
+                      onChange={(event) => setManualModel(event.target.value)}
+                      type="text"
+                      className="w-full rounded-2xl border border-white/10 bg-[#0D1520] px-4 py-3 text-sm text-text placeholder:text-white/40 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                      placeholder="e.g. Street Triple 765 R"
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-text">Year</label>
-                <select
-                  value={bikeYear}
-                  onChange={(event) => setBikeYear(event.target.value)}
-                  className="w-full rounded-2xl border border-white/10 bg-[#0D1520] px-4 py-3 text-sm text-text focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-                >
-                  <option>2020</option>
-                  <option>2021</option>
-                  <option>2022</option>
-                </select>
-              </div>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-text">Year</label>
+                    <input
+                      value={manualYear}
+                      onChange={(event) => setManualYear(event.target.value)}
+                      type="number"
+                      min="1980"
+                      max={new Date().getFullYear() + 1}
+                      className="w-full rounded-2xl border border-white/10 bg-[#0D1520] px-4 py-3 text-sm text-text focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                    />
+                  </div>
+
+                  <p className="text-xs text-muted">
+                    We won't have spec data cached for this bike, but you can still track its maintenance.{' '}
+                    <button
+                      type="button"
+                      onClick={handleCancelManualEntry}
+                      className="text-accent underline transition hover:text-accent/80"
+                    >
+                      Search instead
+                    </button>
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-text">Model</label>
+                  <input
+                    value={modelQuery}
+                    onChange={(event) => setModelQuery(event.target.value)}
+                    type="text"
+                    className="w-full rounded-2xl border border-white/10 bg-[#0D1520] px-4 py-3 text-sm text-text placeholder:text-white/40 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                    placeholder="Search e.g. Street Triple"
+                  />
+
+                  {searchLoading && <p className="text-xs text-muted">Searching…</p>}
+
+                  {!searchLoading && searchResults.length > 0 && (
+                    <div className="max-h-56 space-y-1 overflow-y-auto rounded-2xl border border-white/10 bg-[#0D1520] p-2">
+                      {searchResults.map((result, index) => (
+                        <button
+                          key={`${result.model}-${result.year}-${index}`}
+                          type="button"
+                          onClick={() => handleSelectResult(result)}
+                          className="block w-full rounded-xl px-3 py-2 text-left text-sm transition hover:bg-white/5"
+                        >
+                          <span className="font-medium text-text">{result.model}</span>{' '}
+                          <span className="text-muted">
+                            · {result.year}
+                            {result.type ? ` · ${result.type}` : ''}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {!searchLoading && searchError && (
+                    <div className="rounded-2xl border border-accent/20 bg-accent/10 px-3 py-2 text-sm text-accent">
+                      {searchError}
+                    </div>
+                  )}
+
+                  {!searchLoading && modelQuery.trim().length >= 2 && searchResults.length === 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setIsManualEntry(true)}
+                      className="text-xs font-semibold text-accent underline transition hover:text-accent/80"
+                    >
+                      Can't find your bike? Add it manually
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {specError && (
+                <div className="rounded-2xl border border-accent/20 bg-accent/10 px-3 py-2 text-sm text-accent">
+                  {specError}
+                </div>
+              )}
             </div>
           )}
 
@@ -265,6 +526,12 @@ function OnboardingOverlay({
                   className="w-full rounded-2xl border border-white/10 bg-[#0D1520] px-4 py-3 text-sm text-text focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
                 />
               </div>
+
+              {saveBikeError && (
+                <div className="rounded-2xl border border-accent/20 bg-accent/10 px-3 py-2 text-sm text-accent">
+                  {saveBikeError}
+                </div>
+              )}
             </div>
           )}
 
@@ -285,17 +552,19 @@ function OnboardingOverlay({
               <>
                 <button
                   type="button"
-                  onClick={onNext}
-                  className="flex-1 rounded-2xl border border-white/10 bg-transparent px-4 py-3 text-sm font-semibold text-text transition hover:border-accent hover:text-accent"
+                  onClick={handleSkipDates}
+                  disabled={isSavingBike}
+                  className="flex-1 rounded-2xl border border-white/10 bg-transparent px-4 py-3 text-sm font-semibold text-text transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   Skip for now
                 </button>
                 <button
                   type="button"
-                  onClick={onNext}
-                  className="flex-1 rounded-2xl bg-accent px-4 py-3 text-sm font-semibold text-page transition hover:bg-accent/90"
+                  onClick={handleContinueWithDates}
+                  disabled={isSavingBike}
+                  className="flex-1 rounded-2xl bg-accent px-4 py-3 text-sm font-semibold text-page transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  Continue
+                  {isSavingBike ? 'Saving…' : 'Continue'}
                 </button>
               </>
             ) : (

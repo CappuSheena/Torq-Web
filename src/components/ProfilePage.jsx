@@ -1,19 +1,49 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { IconPlus } from '@tabler/icons-react';
 import ProfileHero from './ProfileHero';
 import ProfileHeader from './ProfileHeader';
 import BikeCard from './BikeCard';
-import { mockBikes } from '../data/profileContent';
+import { API_BASE_URL } from '../lib/api';
 
 // Profile screen (Docs/CLAUDE.md "Profile screen"): user header, the
 // signed-in rider's bikes, and an entry point for adding another one.
 // Bike profile and account settings live entirely here, not on the home
 // dashboard.
-function ProfilePage({ user, onLogout }) {
+function ProfilePage({ user, authToken, onLogout }) {
   // "Add another bike" opens an onboarding-style flow that hasn't been
   // designed yet (see Docs/CLAUDE.md) — for now it just reveals a note
   // instead of pretending to start a flow that doesn't exist.
   const [showAddBikeStubNote, setShowAddBikeStubNote] = useState(false);
+
+  const [bikes, setBikes] = useState([]);
+  const [bikesLoading, setBikesLoading] = useState(true);
+  const [bikesError, setBikesError] = useState('');
+
+  useEffect(() => {
+    const loadBikes = async () => {
+      setBikesLoading(true);
+      setBikesError('');
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/bikes`, {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Unable to load your bikes.');
+        }
+
+        setBikes(data.bikes || []);
+      } catch (error) {
+        setBikesError(error instanceof Error ? error.message : 'Unable to load your bikes.');
+      } finally {
+        setBikesLoading(false);
+      }
+    };
+
+    if (authToken) loadBikes();
+  }, [authToken]);
 
   return (
     <div>
@@ -25,11 +55,25 @@ function ProfilePage({ user, onLogout }) {
         <section className="space-y-4">
           <h2 className="font-display text-2xl font-semibold text-text">My bikes</h2>
 
-          <div className="space-y-4">
-            {mockBikes.map((bike) => (
-              <BikeCard key={bike.id} bike={bike} />
-            ))}
-          </div>
+          {bikesLoading ? (
+            <p className="rounded-[20px] border border-white/10 bg-surface px-5 py-6 text-center text-sm text-muted">
+              Loading your bikes…
+            </p>
+          ) : bikesError ? (
+            <p className="rounded-[20px] border border-accent/20 bg-accent/10 px-5 py-6 text-center text-sm text-accent">
+              {bikesError}
+            </p>
+          ) : bikes.length === 0 ? (
+            <p className="rounded-[20px] border border-white/10 bg-surface px-5 py-6 text-center text-sm text-muted">
+              No bikes yet — add your first bike to start tracking maintenance, MOT, tax, and insurance dates.
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {bikes.map((bike) => (
+                <BikeCard key={bike.id} bike={bike} />
+              ))}
+            </div>
+          )}
 
           <button
             type="button"

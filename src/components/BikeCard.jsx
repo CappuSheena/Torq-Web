@@ -10,9 +10,26 @@ import {
   IconClockHour4,
 } from '@tabler/icons-react';
 
-// Anything due within this many days is flagged as "due soon" — matches the
-// rough first-pass rule in Docs/CLAUDE.md, tune later once real usage data exists.
+// Anything due within this many days is flagged as "due soon" 
 const DUE_SOON_THRESHOLD_DAYS = 30;
+
+// The four headline specs shown collapsed, mapped to the actual API Ninjas
+// field names cached in bikes.spec_json (there's no "kerb weight" field —
+// total_weight is the closest match). Everything else in spec_json shows
+// up under "See more" instead of being hardcoded here.
+const HEADLINE_SPEC_KEYS = ['engine', 'power', 'torque', 'total_weight'];
+// Excluded from "See more" too — make/model/year are already the card title.
+const SEE_MORE_EXCLUDED_KEYS = [...HEADLINE_SPEC_KEYS, 'make', 'model', 'year'];
+
+function getHeadlineSpecValue(spec, key) {
+  return spec?.[key] || 'Not available';
+}
+
+// front_wheel_travel -> "Front wheel travel". Change how the text/input looks on the frontend.
+function formatSpecLabel(key) {
+  const label = key.split('_').join(' ');
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
 
 // Days between now and a date string. Negative means the date has passed.
 function daysUntil(dateStr) {
@@ -21,9 +38,7 @@ function daysUntil(dateStr) {
   return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 }
 
-// Docs/CLAUDE.md: colour only the single soonest key date, so one bad date
-// isn't masked by two fine ones (and two "urgent" dates don't compete for
-// attention). Overdue dates count too — they're the most urgent case.
+// Colour only the single soonest key date in Orange to highlight it
 function getUrgentKeyDateKey(bike) {
   const candidates = [
     { key: 'mot', date: bike.motDate },
@@ -44,7 +59,7 @@ function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-// Rough relative-time label for the "specs synced x ago" line — doesn't need
+// Rough relative-time label for the "specs synced x ago" line. It  doesn't need
 // to be precise, just enough to tell the rider the cache isn't stale.
 function timeAgo(isoString) {
   if (!isoString) return 'never';
@@ -60,6 +75,7 @@ function timeAgo(isoString) {
 // a rider has more than one bike.
 function BikeCard({ bike }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showAllSpecs, setShowAllSpecs] = useState(false);
   const urgentKey = getUrgentKeyDateKey(bike);
 
   const keyDates = [
@@ -67,6 +83,10 @@ function BikeCard({ bike }) {
     { key: 'tax', label: 'Tax', date: bike.taxDate },
     { key: 'insurance', label: 'Insurance', date: bike.insuranceDate },
   ];
+
+  const remainingSpecEntries = Object.entries(bike.spec || {}).filter(
+    ([key, value]) => !SEE_MORE_EXCLUDED_KEYS.includes(key) && value !== null && value !== ''
+  );
 
   return (
     <div className="rounded-[20px] border border-white/10 bg-surface shadow-flat">
@@ -77,13 +97,13 @@ function BikeCard({ bike }) {
         className="flex w-full items-center justify-between gap-4 p-5 text-left"
       >
         <div>
-          {/* No nickname field — title is always Make - Model - Year, in that order */}
           <p className="font-display text-xl font-semibold text-text">
             {bike.make} - {bike.model} - {bike.year}
           </p>
           <p className="mt-2 flex items-center gap-1.5 text-xs text-muted">
-            <IconGauge size={14} /> {bike.mileage.toLocaleString()} mi · Last service{' '}
-            {formatDate(bike.lastServiceDate)}
+            <IconGauge size={14} />{' '}
+            {typeof bike.mileage === 'number' ? `${bike.mileage.toLocaleString()} mi` : 'Mileage not logged'} · Last
+            service {formatDate(bike.lastServiceDate)}
           </p>
         </div>
 
@@ -119,27 +139,47 @@ function BikeCard({ bike }) {
             <p className="text-xs font-semibold uppercase tracking-wide text-muted">Specs</p>
             <div className="mt-2 grid grid-cols-2 gap-3 text-sm text-text sm:grid-cols-4">
               <div className="flex items-center gap-1.5">
-                <IconEngine size={14} className="text-muted" /> {bike.specs.engine}
+                <IconEngine size={14} className="text-muted" /> {getHeadlineSpecValue(bike.spec, 'engine')}
               </div>
               <div className="flex items-center gap-1.5">
-                <IconBolt size={14} className="text-muted" /> {bike.specs.power}
+                <IconBolt size={14} className="text-muted" /> {getHeadlineSpecValue(bike.spec, 'power')}
               </div>
               <div className="flex items-center gap-1.5">
-                <IconRotate2 size={14} className="text-muted" /> {bike.specs.torque}
+                <IconRotate2 size={14} className="text-muted" /> {getHeadlineSpecValue(bike.spec, 'torque')}
               </div>
               <div className="flex items-center gap-1.5">
-                <IconWeight size={14} className="text-muted" /> {bike.specs.kerbWeight}
+                <IconWeight size={14} className="text-muted" /> {getHeadlineSpecValue(bike.spec, 'total_weight')}
               </div>
             </div>
             <p className="mt-2 flex items-center gap-1.5 text-xs text-muted">
               <IconClockHour4 size={12} /> Specs synced {timeAgo(bike.lastSyncedAt)}
             </p>
-          </div>
 
-          {/* Per-bike maintenance calendar isn't built yet — stubbed for now, same as the add-bike flow */}
-          <p className="rounded-2xl border border-dashed border-white/10 px-3 py-2 text-center text-xs text-muted">
-            Full maintenance calendar coming soon
-          </p>
+            {remainingSpecEntries.length > 0 && (
+              <div className="mt-3">
+                <button
+                  type="button"
+                  onClick={() => setShowAllSpecs((open) => !open)}
+                  aria-expanded={showAllSpecs}
+                  className="flex items-center gap-1 text-xs font-semibold text-accent transition hover:text-accent/80"
+                >
+                  See more
+                  {showAllSpecs ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />}
+                </button>
+
+                {showAllSpecs && (
+                  <div className="mt-2 grid grid-cols-2 gap-3 text-sm text-text sm:grid-cols-3">
+                    {remainingSpecEntries.map(([key, value]) => (
+                      <div key={key}>
+                        <p className="text-[11px] uppercase tracking-wide text-muted">{formatSpecLabel(key)}</p>
+                        <p className="mt-0.5">{value}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

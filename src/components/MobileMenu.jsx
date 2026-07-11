@@ -24,7 +24,7 @@ function MobileMenu({
     }
   }, [isOpen]);
 
-  // Close the drawer when the Escape key is pressed. Accessibillity
+  // Close the drawer when the Escape key is pressed. Accessibillity!!
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (event) => {

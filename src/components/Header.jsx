@@ -6,7 +6,7 @@ import logoWebp from '../assets/logo.webp';
 import MobileMenu from './MobileMenu';
 import { navItems } from '../data/navigation';
 
-// this header function assumes the user is not signed in automatically, and will show the sign up and log in buttons. If the user is signed in, it will show their name and a log out button. The header is responsive and will show a mobile menu on smaller screens. The mobile menu is a separate component that is imported here. The header also shows a loading state while the session check is running.
+// this header function assumes the user is not signed in automatically, and will show the sign up and log in buttons. If the user is signed in, it will show their name and a log out button. The header is responsive and will show a mobile menu on smaller screens. The mobile menu is a separate component that is imported here. The header SHOULD also shows a loading state while the session check is running.
 function Header({
   onSignUpClick,
   onLogInClick,
@@ -19,9 +19,7 @@ function Header({
 }) {
   // The header changes based on whether the user has a valid session.
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  // Used to underline/colour the active nav item — only "dashboard" can ever
-  // match right now since it's the only item with a real route (it links to
-  // the Profile page/component; only the nav label reads "Dashboard").
+  // Used to underline/colour the active nav item
   const location = useLocation();
 
   // Same rule as the mobile drawer: signed-out taps open sign-up; signed-in
@@ -39,7 +37,7 @@ function Header({
   return (
     <header className="border-b border-white/10 bg-page/95">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        {/* Logo/wordmark doubles as the "go home" control — the only way back from Profile right now */}
+        {/* Clicking logo takes user back to home */}
         <button type="button" onClick={onLogoClick} className="flex items-center gap-3">
           <div className="flex h-10 w-20 items-center justify-center rounded-full p-1">
             {/* WebP first, PNG fallback for older browsers */}
@@ -116,7 +114,7 @@ function Header({
               </button>
             </>
           )}
-           {/* The mobile menu button is always shown on smaller screens, and toggles the mobile menu open and closed. It uses the IconMenu2 and IconX icons from Tabler Icons to indicate the menu state. The button has appropriate aria attributes for accessibility. */}
+           {/* The mobile menu button is always shown on smaller screens, and toggles the mobile menu open and closed. It uses 3 lines or an X to show menu state. The button has appropriate aria attributes for accessibility too */}
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen((open) => !open)}
@@ -124,7 +122,7 @@ function Header({
             aria-expanded={isMobileMenuOpen}
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-text transition hover:border-accent/50 hover:text-accent sm:hidden"
           >
-            {/* Mobile menu buttons, hamburger or X */}
+            {/* Mobile menu buttons, hamburger or X with their REM sizes */}
             {isMobileMenuOpen ? <IconX size={18} /> : <IconMenu2 size={18} />}
           </button>
         </div>

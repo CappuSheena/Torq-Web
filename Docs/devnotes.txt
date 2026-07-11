@@ -22,3 +22,17 @@ Need to relearn react router to reroute other pages; look at Kids Patient Portal
 Have also noticed the progress bar at the top of the "Log in" part. Need to update the conditional slide state to remove it for a returning user. Logging in doesn't have 4 steps.
 Slowly discovering tailwind editables.. like w-3/5 is 40% width of parent.
 Need to update the page names, placeholders currently.
+
+11/07/26
+
+Forgot to put in devnotes from the last few days but hav elearned A LOT. Had to relearn React Router for a start, which was tough but came back to me as I worked through it. Had to overhaul the navigation because the mobile menu and default desktop menu were totally separate, and conflicting with each other. With the help of claude I compiled it into one either/or code snip. Also added a couple bells and whistles like tapping outside the menu will close it. Added some placeholder endpoints too like pressing the name of a page takes to the sign up menu.
+
+Managed to create the bike profile and its layout, but filled it completely with placeholder, which was good for vision but now I realise I didn't follow what the API would actually populate it with, so now I need to rewrite it all. Currently in big talks with claude and it has realised something; I assumed the API was completely open/free, but it is infact limited. Not the end of the world, I just need to redesign the bike profile creator.
+I have realised though thr API return object has a LOT more info than i thought. Once again back to claude to be walked through how to dynamically fill the bike profile card! As not all makes/models will have the same information. I 
+Also realised the bike profile creator is missing a full slide for last service, and mileage. Need to add that before the end of the day so the placeholder text can be removed.
+
+Been some time and i've just noticed the inputs for the bike profile still have example text (prefilled field, not placeholder, I put that there when first creating the onboarding slides to save myself 3 seconds worth of typing)
+
+Having a hard time learning how this API works; been getting a hefty walkthrough via claude and copilot.
+
+Really tough. Now when you search for the model, it attaches the year to the results, so it'll (debounce? new word) return for example "CB125F 2017 CB125 2020 CB125 2021" and so on. User will need to scroll through the results or type more to refine it. Annoying, but it works! Took roughly 9 hours. 

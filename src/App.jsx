@@ -6,8 +6,8 @@ import OnboardingOverlay from './components/OnboardingOverlay';
 import ProfilePage from './components/ProfilePage';
 import Footer from './components/Footer';
 import { onboardingSlides } from './data/homeContent';
+import { API_BASE_URL } from './lib/api';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 const TOKEN_STORAGE_KEY = 'torq_token';
 
 // Keep the auth details in one place so the header and onboarding flow can share them.
@@ -208,7 +208,7 @@ function App() {
             authLoading ? (
               <p className="px-4 py-10 text-center text-sm text-muted">Checking session…</p>
             ) : isAuthenticated ? (
-              <ProfilePage user={authUser} onLogout={handleLogout} />
+              <ProfilePage user={authUser} authToken={authToken} onLogout={handleLogout} />
             ) : (
               <Navigate to="/" replace />
             )
@@ -229,6 +229,7 @@ function App() {
           onAuthSubmit={handleAuthSubmit}
           authError={authError}
           isSubmitting={authSubmitting}
+          authToken={authToken}
         />
       )}
     </div>
