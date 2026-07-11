@@ -39,3 +39,7 @@ Really tough. Now when you search for the model, it attaches the year to the res
 
 Just removed the example text in bike profile. Now to add the extra slide to add the mileage and last service.
 I think the service should have a toggle, to let the enter either a date or a mile marker number. I will also need to update the bike table in mySQL to take this value. 
+Also found old "default bike" code. Thought it would be useful. I'm on my laptop so i've asked claude to write up SQL file etc so when I get back to my pc at home I can just get it to sort out everything (I have a lot of useful stuff listed in gitignore). Save myself a headache
+
+LAST SERVICE STILL DOESN'T ADD TO THE DATABASE THEREFORE DOESN'T ADD TO THE BIKE CARD. NEED TO FIX
+Rest of the card is working and populating. once the above issue is fixed, then I can add new features and pages.

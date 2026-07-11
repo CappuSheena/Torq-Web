@@ -59,6 +59,14 @@ function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+// Last service was recorded as either a date or a mileage marker (whichever
+// the onboarding toggle was set to) — show whichever one is actually set.
+function formatLastService(bike) {
+  if (bike.lastServiceDate) return formatDate(bike.lastServiceDate);
+  if (typeof bike.lastServiceMileage === 'number') return `${bike.lastServiceMileage.toLocaleString()} mi`;
+  return 'Not set';
+}
+
 // Rough relative-time label for the "specs synced x ago" line. It  doesn't need
 // to be precise, just enough to tell the rider the cache isn't stale.
 function timeAgo(isoString) {
@@ -79,9 +87,10 @@ function BikeCard({ bike }) {
   const urgentKey = getUrgentKeyDateKey(bike);
 
   const keyDates = [
-    { key: 'mot', label: 'MOT', date: bike.motDate },
-    { key: 'tax', label: 'Tax', date: bike.taxDate },
-    { key: 'insurance', label: 'Insurance', date: bike.insuranceDate },
+    { key: 'mot', label: 'MOT', display: formatDate(bike.motDate) },
+    { key: 'tax', label: 'Tax', display: formatDate(bike.taxDate) },
+    { key: 'insurance', label: 'Insurance', display: formatDate(bike.insuranceDate) },
+    { key: 'service', label: 'Last serviced', display: formatLastService(bike) },
   ];
 
   const remainingSpecEntries = Object.entries(bike.spec || {}).filter(
@@ -103,7 +112,7 @@ function BikeCard({ bike }) {
           <p className="mt-2 flex items-center gap-1.5 text-xs text-muted">
             <IconGauge size={14} />{' '}
             {typeof bike.mileage === 'number' ? `${bike.mileage.toLocaleString()} mi` : 'Mileage not logged'} · Last
-            service {formatDate(bike.lastServiceDate)}
+            service {formatLastService(bike)}
           </p>
         </div>
 
@@ -118,7 +127,7 @@ function BikeCard({ bike }) {
         <div className="space-y-5 border-t border-white/10 p-5">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-muted">Key dates</p>
-            <div className="mt-2 grid grid-cols-3 gap-2">
+            <div className="mt-2 grid grid-cols-2 gap-2">
               {keyDates.map((item) => (
                 <div
                   key={item.key}
@@ -129,7 +138,7 @@ function BikeCard({ bike }) {
                   }`}
                 >
                   <p className="text-[11px] uppercase tracking-wide">{item.label}</p>
-                  <p className="mt-1 text-sm font-medium">{formatDate(item.date)}</p>
+                  <p className="mt-1 text-sm font-medium">{item.display}</p>
                 </div>
               ))}
             </div>
@@ -163,7 +172,7 @@ function BikeCard({ bike }) {
                   type="button"
                   onClick={() => setShowAllSpecs((open) => !open)}
                   aria-expanded={showAllSpecs}
-                  className="flex items-center gap-1 text-xs font-semibold text-accent transition hover:text-accent/80"
+                  className="flex items-center gap-1 text-xl font-semibold text-accent transition hover:text-accent/80"
                 >
                   See more
                   {showAllSpecs ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />}
