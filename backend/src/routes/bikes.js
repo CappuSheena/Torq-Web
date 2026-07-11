@@ -20,6 +20,7 @@ function toBikeResponse(row) {
     year: row.year,
     mileage: row.mileage,
     lastServiceDate: row.last_service,
+    lastServiceMileage: row.last_service_mileage,
     motDate: row.mot_expiry_date,
     taxDate: row.tax_expiry_date,
     insuranceDate: row.insurance_expiry_date,
@@ -144,6 +145,7 @@ router.patch('/:id', async (req, res, next) => {
     const allowedFields = {
       mileage: 'mileage',
       last_service: 'last_service',
+      last_service_mileage: 'last_service_mileage',
       mot_date: 'mot_expiry_date',
       tax_date: 'tax_expiry_date',
       insurance_date: 'insurance_expiry_date',

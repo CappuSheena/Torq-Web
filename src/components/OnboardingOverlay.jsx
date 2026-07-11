@@ -75,6 +75,17 @@ function OnboardingOverlay({
   const [specError, setSpecError] = useState('');
   const [isSavingBike, setIsSavingBike] = useState(false);
   const [saveBikeError, setSaveBikeError] = useState('');
+  // id of the bike created at the key-dates step, used to PATCH mileage/
+  // service info onto it at the maintenance step further on.
+  const [createdBikeId, setCreatedBikeId] = useState(null);
+  const [currentMileage, setCurrentMileage] = useState('');
+  // Toggle between recording last service by date or by mileage — only one
+  // is stored, whichever mode is active when the rider continues.
+  const [serviceInputMode, setServiceInputMode] = useState('date');
+  const [lastServiceDate, setLastServiceDate] = useState('');
+  const [lastServiceMileage, setLastServiceMileage] = useState('');
+  const [isSavingMaintenance, setIsSavingMaintenance] = useState(false);
+  const [saveMaintenanceError, setSaveMaintenanceError] = useState('');
 
   // Hides the back button from the first step
   const showBackButton = step > 0;
@@ -246,6 +257,9 @@ function OnboardingOverlay({
         throw new Error(data.error || 'Unable to save your bike.');
       }
 
+      // Stashed so the maintenance step (further on) can PATCH mileage and
+      // service info onto this same bike instead of creating another one.
+      setCreatedBikeId(data.bike?.id ?? null);
       return true;
     } catch (error) {
       setSaveBikeError(error instanceof Error ? error.message : 'Unable to save your bike.');
@@ -265,6 +279,62 @@ function OnboardingOverlay({
   const handleSkipDates = async () => {
     const saved = await createBike({ motDate: null, taxDate: null, insuranceDate: null });
     if (saved) onNext();
+  };
+
+  // Maintenance step — PATCHes the bike created back at the key-dates step
+  // with current mileage and last-service info. Only one of
+  // lastServiceDate/lastServiceMileage is sent, whichever mode was active.
+  const saveMaintenance = async ({ mileageValue, lastServiceDateValue, lastServiceMileageValue }) => {
+    // No bike id means bike creation failed earlier — nothing to attach
+    // maintenance info to, so just let the rider move on.
+    if (!createdBikeId) return true;
+
+    setSaveMaintenanceError('');
+    setIsSavingMaintenance(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/bikes/${createdBikeId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          mileage: mileageValue,
+          last_service: lastServiceDateValue,
+          last_service_mileage: lastServiceMileageValue,
+        }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Unable to save your maintenance details.');
+      }
+
+      return true;
+    } catch (error) {
+      setSaveMaintenanceError(
+        error instanceof Error ? error.message : 'Unable to save your maintenance details.'
+      );
+      return false;
+    } finally {
+      setIsSavingMaintenance(false);
+    }
+  };
+
+  const handleContinueWithMaintenance = async () => {
+    const saved = await saveMaintenance({
+      mileageValue: currentMileage.trim() ? Number(currentMileage) : null,
+      lastServiceDateValue: serviceInputMode === 'date' && lastServiceDate ? lastServiceDate : null,
+      lastServiceMileageValue:
+        serviceInputMode === 'mileage' && lastServiceMileage.trim() ? Number(lastServiceMileage) : null,
+    });
+    if (saved) onNext();
+  };
+
+  const handleSkipMaintenance = () => {
+    onNext();
   };
 
   // usual prevent default. Step 0 calls onAuthSubmit (register/login). Step 1
@@ -572,8 +642,79 @@ function OnboardingOverlay({
             </div>
           )}
 
-{/* // // The final slide shows a big tick and a message that the user is signed up. It also has a button to go to the dashboard. */}
+{/* Mileage is always shown; last service can be recorded either as a date
+    or as an odometer reading at the time — the toggle picks which one gets
+    sent, the other stays null. */}
           {step === 3 && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-text">Current mileage</label>
+                <input
+                  value={currentMileage}
+                  onChange={(event) => setCurrentMileage(event.target.value)}
+                  type="number"
+                  min="0"
+                  className="w-full rounded-2xl border border-white/10 bg-[#0D1520] px-4 py-3 text-sm text-text placeholder:text-white/40 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                  placeholder="e.g. 8250"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-text">Last serviced</label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setServiceInputMode('date')}
+                    className={`flex-1 rounded-2xl border px-4 py-2 text-sm font-semibold transition ${
+                      serviceInputMode === 'date'
+                        ? 'border-accent bg-accent/10 text-accent'
+                        : 'border-white/10 text-muted hover:text-text'
+                    }`}
+                  >
+                    By date
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setServiceInputMode('mileage')}
+                    className={`flex-1 rounded-2xl border px-4 py-2 text-sm font-semibold transition ${
+                      serviceInputMode === 'mileage'
+                        ? 'border-accent bg-accent/10 text-accent'
+                        : 'border-white/10 text-muted hover:text-text'
+                    }`}
+                  >
+                    By mileage
+                  </button>
+                </div>
+
+                {serviceInputMode === 'date' ? (
+                  <input
+                    value={lastServiceDate}
+                    onChange={(event) => setLastServiceDate(event.target.value)}
+                    type="date"
+                    className="w-full rounded-2xl border border-white/10 bg-[#0D1520] px-4 py-3 text-sm text-text focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                  />
+                ) : (
+                  <input
+                    value={lastServiceMileage}
+                    onChange={(event) => setLastServiceMileage(event.target.value)}
+                    type="number"
+                    min="0"
+                    className="w-full rounded-2xl border border-white/10 bg-[#0D1520] px-4 py-3 text-sm text-text placeholder:text-white/40 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                    placeholder="e.g. 6000"
+                  />
+                )}
+              </div>
+
+              {saveMaintenanceError && (
+                <div className="rounded-2xl border border-accent/20 bg-accent/10 px-3 py-2 text-sm text-accent">
+                  {saveMaintenanceError}
+                </div>
+              )}
+            </div>
+          )}
+
+{/* // // The final slide shows a big tick and a message that the user is signed up. It also has a button to go to the dashboard. */}
+          {step === 4 && (
             <div className="space-y-5 text-center">
               <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-accent/15 text-accent">
                 <IconCheck size={34} />
@@ -583,8 +724,8 @@ function OnboardingOverlay({
             </div>
           )}
 
-{/* //If the user is on the second step, it will show continue or Skip. This puts a null value in teh users MOT etc dates but lets them move on. The user dashboard will contain the abillity to edit their profile later. */}
-          <div className={`mt-6 ${step === 2 ? 'flex gap-3' : 'text-right'}`}>
+{/* //If the user is on the key-dates or maintenance step, show Continue/Skip instead of the usual submit button. Skipping puts null values in for whatever wasn't filled in but lets them move on. The user dashboard will contain the abillity to edit their profile later. */}
+          <div className={`mt-6 ${step === 2 || step === 3 ? 'flex gap-3' : 'text-right'}`}>
             {step === 2 ? (
               <>
                 <button
@@ -602,6 +743,25 @@ function OnboardingOverlay({
                   className="flex-1 rounded-2xl bg-accent px-4 py-3 text-sm font-semibold text-page transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {isSavingBike ? 'Saving…' : 'Continue'}
+                </button>
+              </>
+            ) : step === 3 ? (
+              <>
+                <button
+                  type="button"
+                  onClick={handleSkipMaintenance}
+                  disabled={isSavingMaintenance}
+                  className="flex-1 rounded-2xl border border-white/10 bg-transparent px-4 py-3 text-sm font-semibold text-text transition hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  Skip for now
+                </button>
+                <button
+                  type="button"
+                  onClick={handleContinueWithMaintenance}
+                  disabled={isSavingMaintenance}
+                  className="flex-1 rounded-2xl bg-accent px-4 py-3 text-sm font-semibold text-page transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isSavingMaintenance ? 'Saving…' : 'Continue'}
                 </button>
               </>
             ) : (
