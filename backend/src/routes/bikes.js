@@ -58,6 +58,13 @@ async function getOwnedBikeOrRespond(req, res) {
 
 // POST /api/bikes — creates a bike for the logged in user. The first bike a
 // user creates automatically becomes their primary one.
+//
+// Note on `spec`: this is NOT looked up again here. The frontend already
+// called /api/motorcycles/spec earlier (see motorcycles.js) to search API
+// Ninjas and let the user pick their exact bike — whatever object they
+// picked just gets sent along in this request, and we save a copy of it as
+// JSON text in the spec_json column below. That way we only ever call the
+// outside API once per bike, instead of every time someone opens the app.
 router.post('/', async (req, res, next) => {
   try {
     const { make, model, year, nickname, mot_date, tax_date, insurance_date, spec } = req.body || {};
@@ -69,6 +76,10 @@ router.post('/', async (req, res, next) => {
     const userId = req.user.user_id;
     const [existingBikes] = await query('SELECT id FROM bikes WHERE user_id = ? LIMIT 1', [userId]);
     const isPrimary = existingBikes.length === 0;
+    // spec_json is a JSON column, but it's still just stored as text under
+    // the hood — JSON.stringify() turns the JS object into that text.
+    // toBikeResponse() (below) does the reverse (JSON.parse) when we read
+    // it back out. No spec picked = null, which is a perfectly valid bike.
     const specJson = spec ? JSON.stringify(spec) : null;
     const lastSyncedAt = spec ? new Date() : null;
 

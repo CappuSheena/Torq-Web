@@ -157,6 +157,8 @@ function BikeCard({ bike }) {
 
             {remainingSpecEntries.length > 0 && (
               <div className="mt-3">
+                {/* pressing this button opens a spoiler with ALL the specs that the API returns. */}
+                <p className="py-1 text-xs">Click below to see all the specs of your bike!</p>
                 <button
                   type="button"
                   onClick={() => setShowAllSpecs((open) => !open)}

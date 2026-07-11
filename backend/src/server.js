@@ -27,6 +27,11 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
+// These two lines plug the route files in routes/ into the app. Any
+// request that starts with /api/motorcycles (e.g. /api/motorcycles/spec)
+// gets handed off to motorcycles.js to deal with; anything starting with
+// /api/bikes goes to bikes.js. Keeps this file from turning into one giant
+// list of every single route.
 app.use('/api/motorcycles', motorcyclesRouter);
 app.use('/api/bikes', bikesRouter);
 

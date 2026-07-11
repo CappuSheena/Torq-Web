@@ -36,3 +36,5 @@ Been some time and i've just noticed the inputs for the bike profile still have 
 Having a hard time learning how this API works; been getting a hefty walkthrough via claude and copilot.
 
 Really tough. Now when you search for the model, it attaches the year to the results, so it'll (debounce? new word) return for example "CB125F 2017 CB125 2020 CB125 2021" and so on. User will need to scroll through the results or type more to refine it. Annoying, but it works! Took roughly 9 hours. 
+
+Just removed the example text in bike profile. 

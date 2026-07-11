@@ -107,8 +107,26 @@ function OnboardingOverlay({
     setMode((current) => (current === 'register' ? 'login' : 'register'));
   };
 
-  // Debounced live search against /api/motorcycles/spec as the rider types
-  // a model — results are picked by clicking, never guessed.
+  // This runs every time modelQuery changes (i.e. every keystroke in the
+  // Model box) and is what actually talks to our backend to search for
+  // bikes. Plain-English walkthrough:
+  //   1. If we're in manual-entry mode, or a bike is already picked, don't
+  //      search at all — there's nothing to look up.
+  //   2. Don't bother searching for 1 letter, it'd return junk.
+  //   3. Wait 400ms (setTimeout) before actually sending the request. This
+  //      is called "debouncing" — if you type "cbf" that's 3 keystrokes,
+  //      and without the wait we'd fire off 3 separate searches. Waiting
+  //      400ms after the LAST keystroke means we only search once, after
+  //      you've paused typing.
+  //   4. Ask our own backend (GET /api/motorcycles/spec) for matches — our
+  //      backend then goes and asks API Ninjas (see motorcycles.js) and
+  //      hands the results back to us.
+  //   5. Save whatever came back into searchResults, which is what draws
+  //      the clickable list on screen.
+  // The "return () => clearTimeout(timeoutId)" at the end is React's way of
+  // cancelling the previous 400ms timer if you type another letter before
+  // it fires — otherwise old searches could finish after newer ones and
+  // overwrite them with stale results.
   useEffect(() => {
     if (isManualEntry || selectedBike) return;
 
@@ -157,6 +175,11 @@ function OnboardingOverlay({
     setManualYear('');
   };
 
+  // Called when the rider clicks one of the search results. `result` is
+  // one whole object from the API Ninjas response (make, model, year,
+  // engine, power, everything) — we just hang onto the entire thing as
+  // "the chosen bike". It gets sent to the backend as-is later when we
+  // actually save the bike, no second lookup needed.
   const handleSelectResult = (result) => {
     setSelectedBike(result);
     setSearchResults([]);
@@ -175,9 +198,16 @@ function OnboardingOverlay({
     setManualYear('');
   };
 
-  // Creates the bike via POST /api/bikes using whatever key-date values are
-  // passed in (Skip explicitly passes nulls). Returns whether it succeeded
-  // so the caller knows whether it's safe to advance to the next slide.
+  // This is the last step of the whole chain — it actually saves the bike.
+  // By this point we already have everything we need sitting in state:
+  // bikeMake (dropdown), and either selectedBike (the exact result they
+  // clicked, which includes the full spec) or manualModel/manualYear (typed
+  // by hand, no spec). We just package it all up and POST it to our own
+  // backend at /api/bikes, which is the file backend/src/routes/bikes.js —
+  // that's the bit that actually writes the row into the MySQL database.
+  // Called via whatever key-date values are passed in (Skip explicitly
+  // passes nulls). Returns whether it succeeded so the caller knows
+  // whether it's safe to advance to the next slide.
   const createBike = async ({ motDate, taxDate, insuranceDate }) => {
     setSaveBikeError('');
     setIsSavingBike(true);
@@ -190,6 +220,10 @@ function OnboardingOverlay({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          // The backend needs to know WHO is creating this bike. authToken
+          // is the JWT we got back when the user registered/logged in
+          // (see App.jsx) — sending it here lets the backend's
+          // authenticateToken middleware work out req.user.user_id.
           Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({
@@ -199,6 +233,9 @@ function OnboardingOverlay({
           mot_date: motDate || null,
           tax_date: taxDate || null,
           insurance_date: insuranceDate || null,
+          // selectedBike already IS the full spec object from API Ninjas
+          // (or null if the rider used manual entry) — we just forward it
+          // straight through. The backend stringifies it and stores it.
           spec: selectedBike || null,
         }),
       });
