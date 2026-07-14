@@ -50,6 +50,12 @@ function OnboardingOverlay({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  // Optional — used later by the dashboard weather card (GET /api/weather).
+  // No format checking here on purpose: the backend is the one that actually
+  // knows whether a postcode is real (it asks postcodes.io), so we just pass
+  // whatever's typed straight through and let a bad one surface as an error
+  // when weather is actually looked up, not here.
+  const [postcode, setPostcode] = useState('');
   //Legacy code for avatar upload, leaving it for now because it works without it
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
@@ -349,6 +355,7 @@ function OnboardingOverlay({
         email: email.trim(),
         password,
         displayName: displayName.trim(),
+        postcode: postcode.trim(),
       });
       return;
     }
@@ -417,16 +424,33 @@ function OnboardingOverlay({
           {step === 0 && (
             <div className="space-y-4">
               {mode === 'register' && (
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-text">Display name</label>
-                  <input
-                    value={displayName}
-                    onChange={(event) => setDisplayName(event.target.value)}
-                    type="text"
-                    className="w-full rounded-2xl border border-white/10 bg-[#0D1520] px-4 py-3 text-sm text-text placeholder:text-white/40 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-                    placeholder="Gordy"
-                  />
-                </div>
+                <>
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-text">Display name</label>
+                    <input
+                      value={displayName}
+                      onChange={(event) => setDisplayName(event.target.value)}
+                      type="text"
+                      className="w-full rounded-2xl border border-white/10 bg-[#0D1520] px-4 py-3 text-sm text-text placeholder:text-white/40 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                      placeholder="Gordy"
+                    />
+                  </div>
+
+                  {/* Plain text, no validation — see the comment on the postcode
+                      state above for why. Optional, so no placeholder-as-example
+                      pressure to fill it in right now. */}
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-text">Postcode (optional)</label>
+                    <input
+                      value={postcode}
+                      onChange={(event) => setPostcode(event.target.value)}
+                      type="text"
+                      className="w-full rounded-2xl border border-white/10 bg-[#0D1520] px-4 py-3 text-sm text-text placeholder:text-white/40 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
+                      placeholder="e.g. G1 1XQ"
+                    />
+                    <p className="text-xs text-muted">Used to show local weather on your dashboard.</p>
+                  </div>
+                </>
               )}
 
               <div className="space-y-2">

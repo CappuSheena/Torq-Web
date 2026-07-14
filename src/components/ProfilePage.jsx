@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { IconPlus } from '@tabler/icons-react';
 import ProfileHero from './ProfileHero';
 import ProfileHeader from './ProfileHeader';
+import RideConditions from './RideConditions';
 import BikeCard from './BikeCard';
 import { API_BASE_URL } from '../lib/api';
 
@@ -67,6 +68,8 @@ function ProfilePage({ user, authToken, onLogout }) {
       <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
         <ProfileHeader user={user} onLogout={onLogout} />
 
+
+
         <section className="space-y-4">
           <h2 className="font-display text-2xl font-semibold text-text">My bikes</h2>
 
@@ -106,6 +109,7 @@ function ProfilePage({ user, authToken, onLogout }) {
             </p>
           )}
         </section>
+        <RideConditions authToken={authToken} />
       </div>
     </div>
   );

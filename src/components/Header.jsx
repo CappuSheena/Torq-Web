@@ -22,8 +22,7 @@ function Header({
   // Used to underline/colour the active nav item
   const location = useLocation();
 
-  // Same rule as the mobile drawer: signed-out taps open sign-up; signed-in
-  // "dashboard" goes to the real page, everything else has no page built yet.
+  // Same rule as the mobile drawer: signed-out taps open sign-up
   const handleNavClick = (key) => {
     if (!isAuthenticated) {
       onSignUpClick();

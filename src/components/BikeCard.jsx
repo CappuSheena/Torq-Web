@@ -61,6 +61,7 @@ function formatDate(dateStr) {
 
 // Last service was recorded as either a date or a mileage marker (whichever
 // the onboarding toggle was set to) — show whichever one is actually set.
+//Just runs a script asking if the input is a number, then shows the data and adds mi to the end.
 function formatLastService(bike) {
   if (bike.lastServiceDate) return formatDate(bike.lastServiceDate);
   if (typeof bike.lastServiceMileage === 'number') return `${bike.lastServiceMileage.toLocaleString()} mi`;
@@ -78,9 +79,7 @@ function timeAgo(isoString) {
 }
 
 // One stacked bike card from the Profile screen's "My bikes" list. Starts
-// collapsed and expands in place to reveal key dates, specs and (eventually)
-// a per-bike maintenance calendar — keeps the collapsed list scannable when
-// a rider has more than one bike.
+// collapsed and expands in place to reveal key dates, specs
 function BikeCard({ bike }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAllSpecs, setShowAllSpecs] = useState(false);
@@ -179,11 +178,14 @@ function BikeCard({ bike }) {
                 </button>
 
                 {showAllSpecs && (
-                  <div className="mt-2 grid grid-cols-2 gap-3 text-sm text-text sm:grid-cols-3">
+                  <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
+                    {/* Same dynamic key list as before — just tiled instead of bare text.
+                        No truncation/line-clamp so long values (e.g. long fuel-system
+                        descriptions) wrap and grow the tile instead of overflowing it. */}
                     {remainingSpecEntries.map(([key, value]) => (
-                      <div key={key}>
+                      <div key={key} className="rounded-lg bg-[#0D1520] p-2.5">
                         <p className="text-[11px] uppercase tracking-wide text-muted">{formatSpecLabel(key)}</p>
-                        <p className="mt-0.5">{value}</p>
+                        <p className="mt-1 break-words text-xs text-text">{value}</p>
                       </div>
                     ))}
                   </div>

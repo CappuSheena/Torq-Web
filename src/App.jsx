@@ -105,7 +105,7 @@ function App() {
 
   const goToPreviousSlide = () => setOnboardingStep((step) => Math.max(0, step - 1));
 
-  const handleAuthSubmit = async ({ mode, email, password, displayName }) => {
+  const handleAuthSubmit = async ({ mode, email, password, displayName, postcode }) => {
     // Send the form data to the backend and update the app state based on the result.
     setAuthSubmitting(true);
     setAuthError('');
@@ -120,6 +120,7 @@ function App() {
             email,
             password,
             display_name: displayName,
+            postcode,
           }),
         });
 

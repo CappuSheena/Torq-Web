@@ -1,4 +1,4 @@
-#05/07/2026 16:17
+#05/07/2026
 1. Name and logo need redone. Find the font for the name.
 
 2. Sign in should have a hover and onclick function. Need to create onboarding slides.
@@ -41,5 +41,9 @@ Just removed the example text in bike profile. Now to add the extra slide to add
 I think the service should have a toggle, to let the enter either a date or a mile marker number. I will also need to update the bike table in mySQL to take this value. 
 Also found old "default bike" code. Thought it would be useful. I'm on my laptop so i've asked claude to write up SQL file etc so when I get back to my pc at home I can just get it to sort out everything (I have a lot of useful stuff listed in gitignore). Save myself a headache
 
-LAST SERVICE STILL DOESN'T ADD TO THE DATABASE THEREFORE DOESN'T ADD TO THE BIKE CARD. NEED TO FIX
-Rest of the card is working and populating. once the above issue is fixed, then I can add new features and pages.
+
+14/07/26
+Doing a bit of restyling on the bike profile, it'll do the job for now. Looks a bit cramped but doesn't look bad at all. If anything i'm just happy the data is showing after spending days trying to make it work.
+I think nexct is just adding to the user dashboard naturally. Each new widget will require a new page. It needs the checklist, the ride conditions API thing, then the community page.
+
+I think the ride conditions API will be pretty tough to work around. Initially I wanted it to be able to take the users postcode at onboard, send that to some weather checker, return the current figure for that postcode and display it. But every API I see uses lat/lon, and I don't expect anyone to know their coords. I think the next thing I can do is take the users postcode at onboard, database it, send THAT to an api to return the coords? and database that too. Then when ever the user goes to their dashboard I can send the coords over to an API for the weather. it means on onboarding the user is only having to get their coords once too. I think that might be the approach?

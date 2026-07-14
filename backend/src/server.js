@@ -7,6 +7,7 @@ import pool, { query } from './config/db.js';
 import { authenticateToken } from './middleware/auth.js';
 import bikesRouter from './routes/bikes.js';
 import motorcyclesRouter from './routes/motorcycles.js';
+import weatherRouter from './routes/weather.js';
 
 dotenv.config();
 
@@ -34,11 +35,12 @@ app.get('/api/health', (_req, res) => {
 // list of every single route.
 app.use('/api/motorcycles', motorcyclesRouter);
 app.use('/api/bikes', bikesRouter);
+app.use('/api/weather', weatherRouter);
 
 app.post('/api/auth/register', async (req, res, next) => {
   // Create a new user account and hash the password before storing it.
   try {
-    const { email, password, display_name } = req.body || {};
+    const { email, password, display_name, postcode } = req.body || {};
 
     //If theres no email, password or display name, return a 400 error
     if (!email || !password || !display_name) {
@@ -56,9 +58,15 @@ app.post('/api/auth/register', async (req, res, next) => {
 
     // hash the password
     const passwordHash = await bcrypt.hash(password, 10);
+    // Postcode is optional and saved as-is (no format checking, no lookup)
+    // — we deliberately DON'T call postcodes.io here. That keeps registration
+    // fast and working even if the postcode typed in is wrong or that API is
+    // down. The postcode gets turned into latitude/longitude lazily instead,
+    // the first time GET /api/weather is actually called (see weather.js) —
+    // that's also where a bad postcode would surface as a proper error.
     const [result] = await query(
-      'INSERT INTO users (email, password_hash, display_name, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())',
-      [normalisedEmail, passwordHash, display_name.trim()]
+      'INSERT INTO users (email, password_hash, display_name, postcode, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())',
+      [normalisedEmail, passwordHash, display_name.trim(), postcode ? postcode.trim() : null]
     );
 
     // Return the new user data (excluding the password hash)
