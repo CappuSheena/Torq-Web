@@ -3,6 +3,7 @@ import { IconPlus } from '@tabler/icons-react';
 import ProfileHero from './ProfileHero';
 import ProfileHeader from './ProfileHeader';
 import RideConditions from './RideConditions';
+import FeaturedEvent from './FeaturedEvent';
 import BikeCard from './BikeCard';
 import { API_BASE_URL } from '../lib/api';
 
@@ -109,7 +110,13 @@ function ProfilePage({ user, authToken, onLogout }) {
             </p>
           )}
         </section>
-        <RideConditions authToken={authToken} />
+        {/* Ride conditions and the featured event sit side by side once
+            there's room (same responsive pattern as the bike spec grid in
+            BikeCard.jsx) — single column on mobile, 50/50 from sm up. */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <RideConditions authToken={authToken} />
+          <FeaturedEvent />
+        </div>
       </div>
     </div>
   );

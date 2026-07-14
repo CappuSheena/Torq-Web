@@ -89,8 +89,6 @@ users (user_id PK, display_name, email UNIQUE, password_hash, avatar_url, create
   └─ 1:N → bikes (bike_id PK, user_id FK, make, model, year,
                    spec_json, mileage, mot_date, tax_date, insurance_date,
                    last_synced_at, created_at)
-       └─ 1:N → maintenance_records (record_id PK, bike_id FK, task_type,
-                                       last_done_date, next_due_date, notes)
 ```
 
 Independent reference tables (no FK to users):
@@ -98,7 +96,12 @@ Independent reference tables (no FK to users):
   Completion state lives in frontend session state only, **not** persisted —
   it must reset on page reload and on logout.
 - `events` (event_id, name, description, event_date, start_time, end_time,
-  image_url, latitude, longitude)
+  image_url, location) — `location` is a plain text field (e.g. "Riverside
+  car park, Glasgow"), not latitude/longitude — simpler than geocoding every
+  event, and there's no map view yet that would actually need coordinates.
+  A featured-event preview on the profile page (`GET /api/events/featured`)
+  automatically shows whichever upcoming event has the closest `event_date`
+  — there's no admin panel to manually flag one as featured.
 - `hotspots` (hotspot_id, name, description, category, latitude, longitude)
 - `weather_cache` (cache_id, latitude, longitude, fetched_at, expires_at,
   raw_json) — short expiry (15–30 min), keyed by rounded lat/lng

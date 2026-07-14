@@ -8,6 +8,7 @@ import { authenticateToken } from './middleware/auth.js';
 import bikesRouter from './routes/bikes.js';
 import motorcyclesRouter from './routes/motorcycles.js';
 import weatherRouter from './routes/weather.js';
+import eventsRouter from './routes/events.js';
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.get('/api/health', (_req, res) => {
 app.use('/api/motorcycles', motorcyclesRouter);
 app.use('/api/bikes', bikesRouter);
 app.use('/api/weather', weatherRouter);
+app.use('/api/events', eventsRouter);
 
 app.post('/api/auth/register', async (req, res, next) => {
   // Create a new user account and hash the password before storing it.
@@ -90,7 +92,6 @@ app.post('/api/auth/login', async (req, res, next) => {
   try {
     const { email, password } = req.body || {};
 
-    // NEED TO FIX - RETURNS A FETCH ERROR CURRENTLY
     if (!email || !password) {
       return res.status(400).json({ error: 'email and password are required.' });
     }
