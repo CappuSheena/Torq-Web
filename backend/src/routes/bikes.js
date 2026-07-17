@@ -16,7 +16,6 @@ function toBikeResponse(row) {
     id: row.id,
     make: row.make,
     model: row.model,
-    nickname: row.nickname,
     year: row.year,
     mileage: row.mileage,
     lastServiceDate: row.last_service,
@@ -57,13 +56,13 @@ async function getOwnedBikeOrRespond(req, res) {
 // POST /api/bikes creates a bike for the logged in user.
 // Note on `spec`: this is NOT looked up again here. The frontend already
 // called /api/motorcycles/spec earlier (see motorcycles.js) to search API
-// Ninjas and let the user pick their exact bike — whatever object they
+// Ninjas and let the user pick their exact bike, whatever object they
 // picked just gets sent along in this request, and we save a copy of it as
 // JSON text in the spec_json column below. That way we only ever call the
 // outside API once per bike, instead of every time someone opens the app.
 router.post('/', async (req, res, next) => {
   try {
-    const { make, model, year, nickname, mot_date, tax_date, insurance_date, spec } = req.body || {};
+    const { make, model, year, mot_date, tax_date, insurance_date, spec } = req.body || {};
 
     if (!make || !model || !year) {
       return res.status(400).json({ error: 'make, model, and year are required.' });
@@ -71,7 +70,7 @@ router.post('/', async (req, res, next) => {
 
     const userId = req.user.user_id;
     // spec_json is a JSON column, but it's still just stored as text under
-    // the hood — JSON.stringify() turns the JS object into that text.
+    // the hood, JSON.stringify() turns the JS object into that text.
     // toBikeResponse() (below) does the reverse (JSON.parse) when we read
     // it back out. No spec picked = null, which is a perfectly valid bike.
     const specJson = spec ? JSON.stringify(spec) : null;
@@ -79,14 +78,13 @@ router.post('/', async (req, res, next) => {
 
     const [result] = await query(
       `INSERT INTO bikes
-        (user_id, make, model, year, nickname, mot_expiry_date, tax_expiry_date, insurance_expiry_date, spec_json, last_synced_at, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+        (user_id, make, model, year, mot_expiry_date, tax_expiry_date, insurance_expiry_date, spec_json, last_synced_at, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         userId,
         make.trim(),
         model.trim(),
         year,
-        nickname ? nickname.trim() : null,
         mot_date || null,
         tax_date || null,
         insurance_date || null,
@@ -102,7 +100,7 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-// GET /api/bikes — every bike belonging to the logged in user, oldest first.
+// GET /api/bikes: every bike belonging to the logged in user, oldest first.
 router.get('/', async (req, res, next) => {
   try {
     const [rows] = await query(
@@ -115,7 +113,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-// GET /api/bikes/:id — a single bike, only if it belongs to the caller.
+// GET /api/bikes/:id: a single bike, only if it belongs to the caller.
 router.get('/:id', async (req, res, next) => {
   try {
     const bike = await getOwnedBikeOrRespond(req, res);
@@ -126,9 +124,9 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-// PATCH /api/bikes/:id — mileage, last_service, key dates, and nickname
-// only. make/model/year/spec are intentionally not editable here since
-// changing them would need a fresh spec lookup.
+// PATCH /api/bikes/:id: mileage, last_service, and key dates only.
+// make/model/year/spec are intentionally not editable here since changing
+// them would need a fresh spec lookup.
 router.patch('/:id', async (req, res, next) => {
   try {
     const bike = await getOwnedBikeOrRespond(req, res);
@@ -141,7 +139,6 @@ router.patch('/:id', async (req, res, next) => {
       mot_date: 'mot_expiry_date',
       tax_date: 'tax_expiry_date',
       insurance_date: 'insurance_expiry_date',
-      nickname: 'nickname',
     };
 
     const body = req.body || {};

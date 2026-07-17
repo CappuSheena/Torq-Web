@@ -35,13 +35,12 @@ export const featureCards = [
   },
   {
     title: 'Community',
-    description: 'Take part in the community — local rides, guides and events around Glasgow.',
+    description: 'Take part in the community, local rides, guides and events around Glasgow.',
     icon: IconMapPin,
   },
 ];
 
 // Onboarding slides that appear when a new user signs up. Each slide has a title and body text. The slides are used in the OnboardingOverlay component. Like the features, any other slides added here update automatically and also expand the slider bar. HOWEVER these are ONLY the title and body text. The progress bar at the top reads how many entries are here.
-// go to the onboardingOverlay.jsx component, reorder the step numbers and add new inputs.
 export const onboardingSlides = [
   {
     title: 'Create your account',
@@ -61,7 +60,7 @@ export const onboardingSlides = [
   },
   {
     title: "You're all set",
-    body: 'Your bike profile is ready — head to the dashboard to see your maintenance summary.',
+    body: 'Your bike profile is ready, head to the dashboard to see your maintenance summary.',
   },
 
 ];

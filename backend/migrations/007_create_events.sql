@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS events (
 INSERT INTO events (name, description, event_date, start_time, end_time, location)
 VALUES (
   'Glasgow Green Bike Meet',
-  'Casual monthly meet-up for local riders — grab a coffee, look at bikes, plan the next group ride.',
+  'Casual monthly meet-up for local riders, grab a coffee, look at bikes, plan the next group ride.',
   '2026-08-02',
   '10:00:00',
   '13:00:00',

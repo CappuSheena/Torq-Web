@@ -1,6 +1,5 @@
 // Chain: postcode -> (postcodes.io) -> coordinates -> (Open-Meteo) -> weather.
-// Neither API alone can go straight from postcode to weather, and both are
-// free with no API key, which is why we picked them.
+// Neither API alone can go straight from postcode to weather, and both are free with no API key, which is why we picked them.
 import express from 'express';
 import { query } from '../config/db.js';
 import { authenticateToken } from '../middleware/auth.js';
@@ -8,8 +7,7 @@ import { authenticateToken } from '../middleware/auth.js';
 const router = express.Router();
 router.use(authenticateToken);
 
-// postcode -> { latitude, longitude }. Returns null on an unrecognised
-// postcode (postcodes.io 404s) instead of throwing.
+// postcode -> { latitude, longitude }. Returns null on an unrecognised postcode (postcodes.io 404s) instead of throwing.
 async function postcodeToCoords(postcode) {
   const url = `https://api.postcodes.io/postcodes/${encodeURIComponent(postcode)}`;
   const response = await fetch(url);
@@ -49,8 +47,7 @@ const WEATHER_CODE_TEXT = {
   95: 'Thunderstorm',
 };
 
-// { latitude, longitude } -> current weather. Only asks for the fields the
-// dashboard actually shows, not the whole forecast.
+// { latitude, longitude } -> current weather. Only asks for the fields the dashboard actually shows, not the whole forecast.
 async function coordsToWeather(latitude, longitude) {
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}` +
@@ -75,10 +72,8 @@ async function coordsToWeather(latitude, longitude) {
 
 // GET /api/weather            -> weather for the signed-in user's saved postcode
 // GET /api/weather?postcode=X -> weather for that exact postcode instead
-//
-// The no-postcode version is what the dashboard actually uses day to day —
-// it reuses cached lat/lng when we have them, only hitting postcodes.io the
-// first time, then saving the result for next time.
+
+// The no-postcode version is what the dashboard actually uses day to day, it reuses cached lat/lng when we have them, only hitting postcodes.io the first time, then saving the result for next time.
 router.get('/', async (req, res, next) => {
   try {
     const queryPostcode = req.query.postcode;
@@ -102,7 +97,7 @@ router.get('/', async (req, res, next) => {
         latitude = user.latitude;
         longitude = user.longitude;
       } else if (user.postcode) {
-        // First lookup for this user — cache the result for next time.
+        // First lookup for this user, cache the result for next time.
         const coords = await postcodeToCoords(user.postcode);
         if (!coords) {
           return res.status(400).json({ error: "That doesn't look like a valid postcode." });

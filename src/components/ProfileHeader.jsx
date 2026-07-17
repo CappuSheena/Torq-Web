@@ -1,11 +1,9 @@
 import { IconUserCircle } from '@tabler/icons-react';
 
-// User header for the Profile screen: avatar placeholder, display name,
-// email, and the edit/logout actions (Docs/CLAUDE.md "Profile screen" spec).
+// User header for the Profile screen: display name, email, and the edit/logout actions (Docs/CLAUDE.md "Profile screen" spec).
 function ProfileHeader({ user, onLogout }) {
   return (
     <div className="flex flex-col items-center gap-4 rounded-[20px] border border-white/10 bg-surface p-6 text-center shadow-flat sm:flex-row sm:text-left">
-      {/* Generic icon placeholder until avatar/photo upload exists */}
       <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-white/10 bg-page text-muted">
         <IconUserCircle size={48} />
       </div>

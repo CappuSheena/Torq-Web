@@ -1,6 +1,6 @@
 import { IconDeviceMobile } from '@tabler/icons-react';
 
-// Phone mockup placeholder — swap for the real screen design once it's added and designed.
+// Phone mockup placeholder, swap for the real screen design once it's added and designed.
 function PhonePreview() {
   return (
     <div className="rounded-[20px] border border-accent/50 bg-surface p-5 shadow-flat">

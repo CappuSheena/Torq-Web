@@ -35,9 +35,7 @@ function MobileMenu({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Signed out: any nav item opens sign-up. Signed in: dashboard/community
-  // navigate to their real pages; checklist still has no page of its own
-  // (it lives inside the dashboard), so it just closes the menu.
+  // Signed out: any nav item opens sign-up. Signed in: dashboard/community navigate to their real pages; checklist still has no page of its own (it lives inside the dashboard), so it just closes the menu.
   const handleNavClick = (key) => {
     if (!isAuthenticated) {
       onSignUpClick();
@@ -99,7 +97,7 @@ function MobileMenu({
           </button>
         </div>
 
-{/* // PLACEHOLDER FOR NAV BUTTONS. These are the same as the header nav buttons, but in a vertical layout for mobile. They will eventually link to the appropriate pages when those routes are added. For now, they just close the menu or open the sign-up overlay if the user is not authenticated. */}
+        {/* Same items as the desktop nav, vertical instead of horizontal. */}
         <nav className="flex flex-col divide-y divide-white/10 border-y border-white/10 px-4">
           {navItems.map((item) => (
             <button

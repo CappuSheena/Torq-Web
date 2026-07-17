@@ -3,7 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import pool, { query } from './config/db.js';
+import { query } from './config/db.js';
 import { authenticateToken } from './middleware/auth.js';
 import bikesRouter from './routes/bikes.js';
 import motorcyclesRouter from './routes/motorcycles.js';
@@ -30,8 +30,7 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-// Plugs the route files in routes/ into the app, keeping this file from
-// turning into one giant list of every single route.
+// Plugs the route files in routes/ into the app, keeping this file from turning into one giant list of every single route.
 app.use('/api/motorcycles', motorcyclesRouter);
 app.use('/api/bikes', bikesRouter);
 app.use('/api/weather', weatherRouter);
@@ -48,7 +47,7 @@ app.post('/api/auth/register', async (req, res, next) => {
       return res.status(400).json({ error: 'email, password, and display_name are required.' });
     }
 
-    // trum down the email whitespace and make it lowercase to avoid duplicates
+    // trim down the email whitespace and make it lowercase to avoid duplicates
     const normalisedEmail = email.trim().toLowerCase();
     const [existingRows] = await query('SELECT id FROM users WHERE email = ? LIMIT 1', [normalisedEmail]);
 
@@ -59,8 +58,7 @@ app.post('/api/auth/register', async (req, res, next) => {
 
     // hash the password
     const passwordHash = await bcrypt.hash(password, 10);
-    // Postcode is saved as-is, no lookup here — it's turned into
-    // latitude/longitude lazily on first weather check instead (weather.js).
+    // Postcode is saved as-is, no lookup here, it's turned into latitude/longitude lazily on first weather check instead (weather.js).
     const [result] = await query(
       'INSERT INTO users (email, password_hash, display_name, postcode, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())',
       [normalisedEmail, passwordHash, display_name.trim(), postcode ? postcode.trim() : null]
@@ -80,7 +78,6 @@ app.post('/api/auth/register', async (req, res, next) => {
   }
 });
 
-// Note: The user is not automatically logged in after registration; they must log in separately.
 
 app.post('/api/auth/login', async (req, res, next) => {
   // Check the email and password, then issue a JWT when the credentials are valid.
@@ -92,7 +89,6 @@ app.post('/api/auth/login', async (req, res, next) => {
     }
 
     // Normalize the email to avoid case sensitivity issues and trim whitespace
-
     const normalisedEmail = email.trim().toLowerCase();
     const [rows] = await query('SELECT id, email, password_hash, display_name FROM users WHERE email = ? LIMIT 1', [normalisedEmail]);
 

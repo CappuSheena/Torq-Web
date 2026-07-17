@@ -4,7 +4,7 @@ import { query } from '../config/db.js';
 
 const router = express.Router();
 
-// Soonest event that hasn't happened yet — no admin flag, fully automatic.
+// Soonest event that hasn't happened yet, no admin flag, fully automatic.
 // Returns { event: null } instead of an error when nothing's upcoming.
 router.get('/featured', async (req, res, next) => {
   try {

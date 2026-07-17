@@ -1,4 +1,4 @@
--- Riding hotspots for the Community page. Global data, no FK to users —
+-- Riding hotspots for the Community page. Global data, no FK to users,
 -- same pattern as events. Plain text `location`, no category, no lat/lng
 -- (simpler, matches the approach already taken for events).
 CREATE TABLE IF NOT EXISTS hotspots (

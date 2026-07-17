@@ -9,7 +9,7 @@ function FeaturedEvent() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Runs once on mount — no auth header needed, events aren't user-specific.
+  // Runs once on mount, no auth header needed, events aren't user-specific.
   useEffect(() => {
     const loadFeaturedEvent = async () => {
       setIsLoading(true);

@@ -64,7 +64,7 @@ function Header({
         </button>
 
         <div className="flex items-center gap-6">
-          {/* Tablet/desktop nav — mobile gets the same items via the hamburger drawer instead */}
+          {/* Tablet/desktop nav, mobile gets the same items via the hamburger drawer instead */}
           <nav className="hidden items-center gap-6 sm:flex">
             {navItems.map((item) => {
               const isActive = location.pathname === `/${item.key}`;

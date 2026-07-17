@@ -14,7 +14,7 @@ function RideConditions({ authToken }) {
       setError('');
 
       try {
-        // No ?postcode= — the backend uses whatever this signed-in user saved.
+        // No ?postcode=, the backend uses whatever this signed-in user saved.
         const response = await fetch(`${API_BASE_URL}/api/weather`, {
           headers: { Authorization: `Bearer ${authToken}` },
         });

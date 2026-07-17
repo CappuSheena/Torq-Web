@@ -1,9 +1,6 @@
 import profileHeroImg from '../assets/trackProfileImg.png';
 
-// Full-bleed banner for the Profile page — same layered-fade treatment as
-// the home page Hero (top/bottom edge fades + a left-to-right page-colour
-// gradient so text stays readable over the photo), just shorter and with no
-// CTA buttons since the user is already signed in.
+// Full-bleed banner for the Profile page, same layered-fade treatment as the home page Hero (top/bottom edge fades + a left-to-right page-colour gradient so text stays readable over the photo), just shorter and with no CTA buttons since the user is already signed in.
 function ProfileHero({ displayName }) {
   return (
     <div className="relative left-1/2 -mx-[50vw] w-screen min-h-[320px] overflow-hidden">

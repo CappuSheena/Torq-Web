@@ -200,11 +200,7 @@ function App() {
         <Route path="/" element={<HomePage onSignUpClick={openSignUp} onLogInClick={openLogIn} />} />
         <Route
           path="/dashboard"
-          // Profile is authenticated-only — bounce back to the home page for a
-          // signed-out visitor. Direct navigation/refresh lands here before
-          // restoreSession's /api/auth/me call resolves, so wait for authLoading
-          // to clear before deciding — otherwise a valid session gets redirected
-          // away before it has a chance to restore.
+          // Profile is authenticated only, bounce back to the home page for a signed out visitor. Direct navigation/refresh lands here before restoreSession's /api/auth/me call resolves, so wait for authLoading to clear before deciding, otherwise a valid session gets redirected away before it has a chance to restore.
           element={
             authLoading ? (
               <p className="px-4 py-10 text-center text-sm text-muted">Checking session…</p>

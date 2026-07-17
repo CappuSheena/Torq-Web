@@ -13,10 +13,9 @@ import {
 // Anything due within this many days is flagged as "due soon" 
 const DUE_SOON_THRESHOLD_DAYS = 30;
 
-// Headline specs shown collapsed (total_weight stands in for kerb weight —
-// API Ninjas doesn't have that field). Everything else goes under "See more".
+// Headline specs shown collapsed (total_weight stands in for kerb weight, API Ninjas doesn't have that field). Everything else goes under "See more".
 const HEADLINE_SPEC_KEYS = ['engine', 'power', 'torque', 'total_weight'];
-// Excluded from "See more" too — make/model/year are already the card title.
+// Excluded from "See more" too, make/model/year are already the card title.
 const SEE_MORE_EXCLUDED_KEYS = [...HEADLINE_SPEC_KEYS, 'make', 'model', 'year'];
 
 function getHeadlineSpecValue(spec, key) {
@@ -57,17 +56,14 @@ function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-// Last service was recorded as either a date or a mileage marker (whichever
-// the onboarding toggle was set to) — show whichever one is actually set.
-//Just runs a script asking if the input is a number, then shows the data and adds mi to the end.
+// Last service was recorded as either a date or a mileage marker (whichever the onboarding toggle was set to), show whichever one is actually set. Just runs a script asking if the input is a number, then shows the data and adds mi to the end.
 function formatLastService(bike) {
   if (bike.lastServiceDate) return formatDate(bike.lastServiceDate);
   if (typeof bike.lastServiceMileage === 'number') return `${bike.lastServiceMileage.toLocaleString()} mi`;
   return 'Not set';
 }
 
-// Rough relative-time label for the "specs synced x ago" line. It  doesn't need
-// to be precise, just enough to tell the rider the cache isn't stale.
+// Rough relative-time label for the "specs synced x ago" line. It  doesn't need to be precise, just enough to tell the rider the cache isn't stale.
 function timeAgo(isoString) {
   if (!isoString) return 'never';
   const diffHours = Math.round((Date.now() - new Date(isoString).getTime()) / (1000 * 60 * 60));
@@ -76,8 +72,7 @@ function timeAgo(isoString) {
   return `${Math.round(diffHours / 24)}d ago`;
 }
 
-// One stacked bike card from the Profile screen's "My bikes" list. Starts
-// collapsed and expands in place to reveal key dates, specs
+// One stacked bike card from the Profile screen's "My bikes" list. Starts collapsed and expands in place to reveal key dates, specs
 function BikeCard({ bike }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAllSpecs, setShowAllSpecs] = useState(false);

@@ -1,19 +1,11 @@
-// I started with trying to add the abillity to add your own 'avatar' to your profile but this is OOS. There is some code here relating to it (like the cmaera icon and possibly routing the img url in the db) that meeds to be removed. Will do it after because it doesn't affect anything just now
-
 import { useEffect, useState } from 'react';
-import {
-  IconCamera,
-  IconCheck,
-  IconX,
-} from '@tabler/icons-react';
+import { IconCheck, IconX } from '@tabler/icons-react';
 
-// Slide count is dynamic — driven by however many entries are in this array.
+// Slide count is dynamic, driven by however many entries are in this array.
 import { onboardingSlides } from '../data/homeContent';
 import { API_BASE_URL } from '../lib/api';
 
-// API Ninjas' Makes/Models list endpoints are paywalled on the free tier
-// (only the spec-search endpoint works), so Make stays a curated static
-// list rather than something fetched live.
+// API Ninjas' Makes/Models list endpoints are paywalled on the free tier (only the spec-search endpoint works), so Make stays a curated static list rather than something fetched live.
 const BIKE_MAKES = [
   'Triumph',
   'Honda',
@@ -45,17 +37,13 @@ function OnboardingOverlay({
   // Determine the current slide and whether it's the last one
   const slide = onboardingSlides[step];
   const isLastSlide = step === onboardingSlides.length - 1;
-  // 'register' or 'login' — toggled by the rider, changes the whole flow.
+  // 'register' or 'login', toggled by the rider, changes the whole flow.
   const [mode, setMode] = useState(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
-  // Optional, used by the dashboard weather card. No format checking here
-  // the backend validates it against postcodes.io when weather is looked up.
+  // Optional, used by the dashboard weather card. No format checking here the backend validates it against postcodes.io when weather is looked up.
   const [postcode, setPostcode] = useState('');
-  //Legacy code for avatar upload, leaving it for now because it works without it
-  const [avatarFile, setAvatarFile] = useState(null);
-  const [avatarPreview, setAvatarPreview] = useState(null);
   const [bikeMake, setBikeMake] = useState('Triumph');
   // Model is picked from live search results, not typed free text, so we
   // never cache the wrong bike's spec. Manual entry is the fallback.
@@ -74,12 +62,10 @@ function OnboardingOverlay({
   const [specError, setSpecError] = useState('');
   const [isSavingBike, setIsSavingBike] = useState(false);
   const [saveBikeError, setSaveBikeError] = useState('');
-  // id of the bike created at the key-dates step, used to PATCH mileage/
-  // service info onto it at the maintenance step further on.
+  // id of the bike created at the key-dates step, used to PATCH mileage/service info onto it at the maintenance step further on.
   const [createdBikeId, setCreatedBikeId] = useState(null);
   const [currentMileage, setCurrentMileage] = useState('');
-  // Toggle between recording last service by date or by mileage — only one
-  // is stored, whichever mode is active when the rider continues.
+  // Toggle between recording last service by date or by mileage, only one is stored, whichever mode is active when the rider continues.
   const [serviceInputMode, setServiceInputMode] = useState('date');
   const [lastServiceDate, setLastServiceDate] = useState('');
   const [lastServiceMileage, setLastServiceMileage] = useState('');
@@ -97,28 +83,12 @@ function OnboardingOverlay({
         : 'Enter your account details to access TORQ.'
       : slide.body;
 
-      // legacy code
-  const handleAvatarChange = (event) => {
-    const file = event.target.files?.[0] || null;
-    setAvatarFile(file);
-
-    if (!file) {
-      setAvatarPreview(null);
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => setAvatarPreview(reader.result);
-    reader.readAsDataURL(file);
-  };
-
   // Toggles between register and login modes, updating the form fields and button labels accordingly.
   const toggleLoginMode = () => {
     setMode((current) => (current === 'register' ? 'login' : 'register'));
   };
 
-  // User starts to type. Wait 400ms after the last keystroke (debounce) before searching. Ask our backend, which asks API Ninjas (in motorcycles.js). Then store the results for the dropdown list.
-  // clearTimeout cancels an olxd search if you type again
+  // User starts to type. Wait 400ms after the last keystroke (debounce) before searching. Ask our backend, which asks API Ninjas (in motorcycles.js). Then store the results for the dropdown list. clearTimeout cancels an olxd search if you type again
   useEffect(() => {
     if (isManualEntry || selectedBike) return;
 
@@ -154,8 +124,7 @@ function OnboardingOverlay({
     return () => clearTimeout(timeoutId);
   }, [modelQuery, bikeMake, isManualEntry, selectedBike]);
 
-  // Make affects which spec results are valid, so changing it clears
-  // anything picked/typed against the previous make.
+  // Make affects which spec results are valid, so changing it clears anything picked/typed against the previous make.
   const handleMakeChange = (event) => {
     setBikeMake(event.target.value);
     setSelectedBike(null);
@@ -221,8 +190,7 @@ function OnboardingOverlay({
         throw new Error(data.error || 'Unable to save your bike.');
       }
 
-      // Stashed so the maintenance step (further on) can PATCH mileage and
-      // service info onto this same bike instead of creating another one.
+      // Stashed so the maintenance step (further on) can PATCH mileage and service info onto this same bike instead of creating another one.
       setCreatedBikeId(data.bike?.id ?? null);
       return true;
     } catch (error) {
@@ -233,8 +201,7 @@ function OnboardingOverlay({
     }
   };
 
-  // Step 2's "Continue" saves whatever dates were entered; "Skip"
-  // saves the bike with all three dates left null.
+  // Step 2's "Continue" saves whatever dates were entered; "Skip" saves the bike with all three dates left null.
   const handleContinueWithDates = async () => {
     const saved = await createBike({ motDate: motDue, taxDate: taxDue, insuranceDate: insuranceDue });
     if (saved) onNext();
@@ -245,12 +212,9 @@ function OnboardingOverlay({
     if (saved) onNext();
   };
 
-  // Maintenance step!!  PATCH the bike created back at the key-dates step
-  // with current mileage and last service info. Only one of
-  // lastServiceDate/lastServiceMileage is sent, whichever mode was active. This is controlled by a toggle on the modal.
+  // Maintenance step!!  PATCH the bike created back at the key-dates step with current mileage and last service info. Only one of lastServiceDate/lastServiceMileage is sent, whichever mode was active. This is controlled by a toggle on the modal.
   const saveMaintenance = async ({ mileageValue, lastServiceDateValue, lastServiceMileageValue }) => {
-    // No bike id means bike creation failed earlier — nothing to attach
-    // maintenance info to, so just let the rider move on.
+    // No bike id means bike creation failed earlier, nothing to attach maintenance info to, so just let the rider move on.
     if (!createdBikeId) return true;
 
     setSaveMaintenanceError('');

@@ -3,7 +3,7 @@ import FeatureCard from './FeatureCard';
 import PhonePreview from './PhonePreview';
 import { featureCards } from '../data/homeContent';
 
-// The public marketing page — hero, feature cards and the phone preview.
+// The public marketing page, hero, feature cards and the phone preview.
 // Lives at "/" (see App.jsx's <Routes>).
 function HomePage({ onSignUpClick, onLogInClick }) {
   return (
