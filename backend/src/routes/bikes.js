@@ -30,9 +30,7 @@ function toBikeResponse(row) {
   };
 }
 
-// Loads a bike by id and checks it belongs to the logged-in user, writing
-// the appropriate 404/403 response itself. Returns null (response already
-// sent) when the caller should stop.
+// Loads a bike by id and checks it belongs to the logged-in user, writing the appropriate 404/403 response itself. Returns null (response already sent) when the caller should stop.
 async function getOwnedBikeOrRespond(req, res) {
   const bikeId = Number(req.params.id);
 
@@ -56,8 +54,7 @@ async function getOwnedBikeOrRespond(req, res) {
   return rows[0];
 }
 
-// POST /api/bikes — creates a bike for the logged in user.
-//
+// POST /api/bikes creates a bike for the logged in user.
 // Note on `spec`: this is NOT looked up again here. The frontend already
 // called /api/motorcycles/spec earlier (see motorcycles.js) to search API
 // Ninjas and let the user pick their exact bike — whatever object they

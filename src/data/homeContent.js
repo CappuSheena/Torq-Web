@@ -16,7 +16,7 @@ export const featureCards = [
     icon: IconTool,
     featured: true,
     //PLACEHOLDER IMG - WILL BE REPLACED WITH SCREENSHOT OF FEATURE
-    image: '/assets/screenshots/key-dates.png',
+    image: '../src/assets/screenshots/key-dates.png',
     imageAlt: 'Bike profile card showing MOT, tax and insurance key dates',
   },
   {
@@ -25,7 +25,7 @@ export const featureCards = [
     icon: IconCalendarEvent,
     featured: true,
     //PLACEHOLDER IMG - WILL BE REPLACED WITH SCREENSHOT OF FEATURE
-    image: '/assets/screenshots/calendar.png',
+    image: '../src/assets/screenshots/calendar.png',
     imageAlt: 'Mini calendar with colour-coded maintenance and bike meet dates',
   },
   {

@@ -11,6 +11,7 @@ function MobileMenu({
   onSignUpClick,
   onLogInClick,
   onProfileClick,
+  onCommunityClick,
   isLoading = false,
 }) {
   useEffect(() => {
@@ -34,10 +35,9 @@ function MobileMenu({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Handle navigation item clicks. If the user is not authenticated, clicking any nav item opens
-  // the sign-up overlay instead. If authenticated, "dashboard" is wired to the real Profile page
-  // (only its nav label reads "Dashboard"); everything else still has no page built, so it just
-  // closes the menu. REMOVE THIS WHEN NEW ROUTES ARE ADDED
+  // Signed out: any nav item opens sign-up. Signed in: dashboard/community
+  // navigate to their real pages; checklist still has no page of its own
+  // (it lives inside the dashboard), so it just closes the menu.
   const handleNavClick = (key) => {
     if (!isAuthenticated) {
       onSignUpClick();
@@ -45,6 +45,9 @@ function MobileMenu({
     }
     if (key === 'dashboard') {
       onProfileClick?.();
+    }
+    if (key === 'community') {
+      onCommunityClick?.();
     }
     onClose();
   };

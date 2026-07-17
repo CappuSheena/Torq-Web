@@ -35,4 +35,28 @@ router.get('/featured', async (req, res, next) => {
   }
 });
 
+// All future events, soonest first. Same "reshape to camelCase" as above, just multiple rows instead of one.
+router.get('/upcoming', async (req, res, next) => {
+  try {
+    const [rows] = await query(
+      'SELECT * FROM events WHERE event_date >= CURDATE() ORDER BY event_date ASC'
+    );
+
+    res.json({
+      events: rows.map((row) => ({
+        id: row.id,
+        name: row.name,
+        description: row.description,
+        eventDate: row.event_date,
+        startTime: row.start_time,
+        endTime: row.end_time,
+        imageUrl: row.image_url,
+        location: row.location,
+      })),
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

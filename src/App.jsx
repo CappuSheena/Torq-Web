@@ -4,6 +4,7 @@ import Header from './components/Header';
 import HomePage from './components/HomePage';
 import OnboardingOverlay from './components/OnboardingOverlay';
 import ProfilePage from './components/ProfilePage';
+import CommunityPage from './components/CommunityPage';
 import Footer from './components/Footer';
 import { onboardingSlides } from './data/homeContent';
 import { API_BASE_URL } from './lib/api';
@@ -178,6 +179,7 @@ function App() {
   };
 
   const goToDashboard = () => navigate('/dashboard');
+  const goToCommunity = () => navigate('/community');
   const goToHome = () => navigate('/');
 
   return (
@@ -186,6 +188,7 @@ function App() {
         onSignUpClick={openSignUp}
         onLogInClick={openLogIn}
         onProfileClick={goToDashboard}
+        onCommunityClick={goToCommunity}
         onLogoClick={goToHome}
         isAuthenticated={isAuthenticated}
         user={authUser}
@@ -207,6 +210,19 @@ function App() {
               <p className="px-4 py-10 text-center text-sm text-muted">Checking session…</p>
             ) : isAuthenticated ? (
               <ProfilePage user={authUser} authToken={authToken} onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+        <Route
+          path="/community"
+          // Same auth-gate as /dashboard above.
+          element={
+            authLoading ? (
+              <p className="px-4 py-10 text-center text-sm text-muted">Checking session…</p>
+            ) : isAuthenticated ? (
+              <CommunityPage />
             ) : (
               <Navigate to="/" replace />
             )

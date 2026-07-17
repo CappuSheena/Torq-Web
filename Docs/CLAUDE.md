@@ -107,7 +107,11 @@ Independent reference tables (no FK to users):
   A featured-event preview on the profile page (`GET /api/events/featured`)
   automatically shows whichever upcoming event has the closest `event_date`
   — there's no admin panel to manually flag one as featured.
-- `hotspots` (hotspot_id, name, description, category, latitude, longitude)
+- `hotspots` (hotspot_id, name, description, location, image_url) —
+  `location` is plain text, same reasoning as events' location field. No
+  `category` and no latitude/longitude — kept to the columns actually used.
+  `image_url` is nullable; the Community page hides the image slot entirely
+  for a hotspot without one rather than showing a placeholder graphic.
 - `weather_cache` (cache_id, latitude, longitude, fetched_at, expires_at,
   raw_json) — short expiry (15–30 min), keyed by rounded lat/lng
 

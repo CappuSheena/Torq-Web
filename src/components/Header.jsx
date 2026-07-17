@@ -11,6 +11,7 @@ function Header({
   onSignUpClick,
   onLogInClick,
   onProfileClick,
+  onCommunityClick,
   onLogoClick,
   isAuthenticated = false,
   user = null,
@@ -30,6 +31,9 @@ function Header({
     }
     if (key === 'dashboard') {
       onProfileClick?.();
+    }
+    if (key === 'community') {
+      onCommunityClick?.();
     }
   };
 
@@ -63,7 +67,7 @@ function Header({
           {/* Tablet/desktop nav — mobile gets the same items via the hamburger drawer instead */}
           <nav className="hidden items-center gap-6 sm:flex">
             {navItems.map((item) => {
-              const isActive = item.key === 'dashboard' && location.pathname === '/dashboard';
+              const isActive = location.pathname === `/${item.key}`;
               return (
                 <button
                   key={item.key}
@@ -137,6 +141,7 @@ function Header({
         onSignUpClick={onSignUpClick}
         onLogInClick={onLogInClick}
         onProfileClick={onProfileClick}
+        onCommunityClick={onCommunityClick}
         isLoading={isLoading}
       />
     </header>

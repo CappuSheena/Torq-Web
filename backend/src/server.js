@@ -9,6 +9,7 @@ import bikesRouter from './routes/bikes.js';
 import motorcyclesRouter from './routes/motorcycles.js';
 import weatherRouter from './routes/weather.js';
 import eventsRouter from './routes/events.js';
+import hotspotsRouter from './routes/hotspots.js';
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.use('/api/motorcycles', motorcyclesRouter);
 app.use('/api/bikes', bikesRouter);
 app.use('/api/weather', weatherRouter);
 app.use('/api/events', eventsRouter);
+app.use('/api/hotspots', hotspotsRouter);
 
 app.post('/api/auth/register', async (req, res, next) => {
   // Create a new user account and hash the password before storing it.
