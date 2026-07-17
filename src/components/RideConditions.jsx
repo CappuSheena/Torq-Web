@@ -2,14 +2,7 @@ import { useEffect, useState } from 'react';
 import { IconCloudPin } from '@tabler/icons-react';
 import { API_BASE_URL } from '../lib/api';
 
-// Small dashboard weather card. Calls our OWN backend's GET /api/weather —
-// never postcodes.io or Open-Meteo directly from the browser (same "always
-// go through our own backend" pattern the motorcycle spec search uses).
-// See backend/src/routes/weather.js for the actual postcode -> coordinates
-// -> weather chain; this component just shows whatever it sends back.
-//
-// No ride-suitability score yet (Good/caution/poor) — that's a separate,
-// later task. This is just: show the current temperature and conditions.
+// Dashboard weather card
 function RideConditions({ authToken }) {
   const [weather, setWeather] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -21,18 +14,13 @@ function RideConditions({ authToken }) {
       setError('');
 
       try {
-        // No ?postcode= here on purpose — leaving it off tells the backend
-        // "use whatever postcode this signed-in user already saved" (see
-        // weather.js). The Authorization header is how it knows who "this
-        // signed-in user" is.
+        // No ?postcode= — the backend uses whatever this signed-in user saved.
         const response = await fetch(`${API_BASE_URL}/api/weather`, {
           headers: { Authorization: `Bearer ${authToken}` },
         });
         const data = await response.json().catch(() => ({}));
 
         if (!response.ok) {
-          // e.g. "Add a postcode to your profile..." or "...valid postcode"
-          // — whatever the backend decided went wrong, straight to the rider.
           throw new Error(data.error || 'Unable to load the weather right now.');
         }
 
@@ -54,9 +42,8 @@ function RideConditions({ authToken }) {
         Ride conditions
       </div>
 
+{/* Generic loading state thingy. Then an error message if needed, otherwise round up the degrees and wind speed */}
       {isLoading ? (
-        // Loading and error states both matter here (CLAUDE.md NFR10) — never
-        // just leave this card blank while the fetch is in flight or failed.
         <p className="mt-3 text-sm leading-6 text-muted">Checking the weather…</p>
       ) : error ? (
         <p className="mt-3 text-sm leading-6 text-muted">{error}</p>

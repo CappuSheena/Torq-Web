@@ -1,4 +1,4 @@
-// I started with trying to add the abillity to add your own 'avatar' to your profile but this is OOS. There is some code here relating to it (like the cmaera icon and possibly routing the img url in the db) that meeds to be removed.
+// I started with trying to add the abillity to add your own 'avatar' to your profile but this is OOS. There is some code here relating to it (like the cmaera icon and possibly routing the img url in the db) that meeds to be removed. Will do it after because it doesn't affect anything just now
 
 import { useEffect, useState } from 'react';
 import {
@@ -7,11 +7,11 @@ import {
   IconX,
 } from '@tabler/icons-react';
 
-// importing the onboarding slides from homeContent.js. Simillar to the feature cards, it is dynamic and will update with however many cards are in the array.
+// Slide count is dynamic — driven by however many entries are in this array.
 import { onboardingSlides } from '../data/homeContent';
 import { API_BASE_URL } from '../lib/api';
 
-// API Ninjas' makes/models list endpoints are paywalled on the free tier
+// API Ninjas' Makes/Models list endpoints are paywalled on the free tier
 // (only the spec-search endpoint works), so Make stays a curated static
 // list rather than something fetched live.
 const BIKE_MAKES = [
@@ -45,27 +45,20 @@ function OnboardingOverlay({
   // Determine the current slide and whether it's the last one
   const slide = onboardingSlides[step];
   const isLastSlide = step === onboardingSlides.length - 1;
-  // State for managing form inputs and mode (register/login). It starts with set mode to 'register' by default, but can be changed to 'login' if the user clicks the toggle, and will change the flow as req
+  // 'register' or 'login' — toggled by the rider, changes the whole flow.
   const [mode, setMode] = useState(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
-  // Optional — used later by the dashboard weather card (GET /api/weather).
-  // No format checking here on purpose: the backend is the one that actually
-  // knows whether a postcode is real (it asks postcodes.io), so we just pass
-  // whatever's typed straight through and let a bad one surface as an error
-  // when weather is actually looked up, not here.
+  // Optional, used by the dashboard weather card. No format checking here
+  // the backend validates it against postcodes.io when weather is looked up.
   const [postcode, setPostcode] = useState('');
   //Legacy code for avatar upload, leaving it for now because it works without it
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [bikeMake, setBikeMake] = useState('Triumph');
-  // Model is a live search against /api/motorcycles/spec rather than free
-  // text — picking an exact result avoids silently attaching the wrong
-  // bike's spec (e.g. typing "cbf" and getting whatever fuzzy-matched
-  // first). selectedBike holds the exact chosen result (which *is* the
-  // full spec object); manual entry is the explicit fallback when a bike
-  // genuinely isn't in API Ninjas' data.
+  // Model is picked from live search results, not typed free text, so we
+  // never cache the wrong bike's spec. Manual entry is the fallback.
   const [modelQuery, setModelQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -95,7 +88,7 @@ function OnboardingOverlay({
 
   // Hides the back button from the first step
   const showBackButton = step > 0;
-//The title and body text for the current step. 
+  // Title and body text for the current step.
   const currentTitle = step === 0 ? (mode === 'register' ? 'Create your account' : 'Log in to TORQ') : slide.title;
   const currentBody =
     step === 0
@@ -124,26 +117,8 @@ function OnboardingOverlay({
     setMode((current) => (current === 'register' ? 'login' : 'register'));
   };
 
-  // This runs every time modelQuery changes (i.e. every keystroke in the
-  // Model box) and is what actually talks to our backend to search for
-  // bikes. Plain-English walkthrough:
-  //   1. If we're in manual-entry mode, or a bike is already picked, don't
-  //      search at all — there's nothing to look up.
-  //   2. Don't bother searching for 1 letter, it'd return junk.
-  //   3. Wait 400ms (setTimeout) before actually sending the request. This
-  //      is called "debouncing" — if you type "cbf" that's 3 keystrokes,
-  //      and without the wait we'd fire off 3 separate searches. Waiting
-  //      400ms after the LAST keystroke means we only search once, after
-  //      you've paused typing.
-  //   4. Ask our own backend (GET /api/motorcycles/spec) for matches — our
-  //      backend then goes and asks API Ninjas (see motorcycles.js) and
-  //      hands the results back to us.
-  //   5. Save whatever came back into searchResults, which is what draws
-  //      the clickable list on screen.
-  // The "return () => clearTimeout(timeoutId)" at the end is React's way of
-  // cancelling the previous 400ms timer if you type another letter before
-  // it fires — otherwise old searches could finish after newer ones and
-  // overwrite them with stale results.
+  // User starts to type. Wait 400ms after the last keystroke (debounce) before searching. Ask our backend, which asks API Ninjas (in motorcycles.js). Then store the results for the dropdown list.
+  // clearTimeout cancels an olxd search if you type again
   useEffect(() => {
     if (isManualEntry || selectedBike) return;
 
@@ -192,11 +167,7 @@ function OnboardingOverlay({
     setManualYear('');
   };
 
-  // Called when the rider clicks one of the search results. `result` is
-  // one whole object from the API Ninjas response (make, model, year,
-  // engine, power, everything) — we just hang onto the entire thing as
-  // "the chosen bike". It gets sent to the backend as-is later when we
-  // actually save the bike, no second lookup needed.
+  // Keeps the full API Ninjas result (spec and all) to send as-is later.
   const handleSelectResult = (result) => {
     setSelectedBike(result);
     setSearchResults([]);
@@ -215,16 +186,9 @@ function OnboardingOverlay({
     setManualYear('');
   };
 
-  // This is the last step of the whole chain — it actually saves the bike.
-  // By this point we already have everything we need sitting in state:
-  // bikeMake (dropdown), and either selectedBike (the exact result they
-  // clicked, which includes the full spec) or manualModel/manualYear (typed
-  // by hand, no spec). We just package it all up and POST it to our own
-  // backend at /api/bikes, which is the file backend/src/routes/bikes.js —
-  // that's the bit that actually writes the row into the MySQL database.
-  // Called via whatever key-date values are passed in (Skip explicitly
-  // passes nulls). Returns whether it succeeded so the caller knows
-  // whether it's safe to advance to the next slide.
+  // Saves the bike to POST /api/bikes:
+  //   the Model/Year come from selectedBike, or the manual entry fields
+  //   then Key dates come from whatever was passed in (clicking Skip sends nulls to the DB).
   const createBike = async ({ motDate, taxDate, insuranceDate }) => {
     setSaveBikeError('');
     setIsSavingBike(true);
@@ -237,23 +201,17 @@ function OnboardingOverlay({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // The backend needs to know WHO is creating this bike. authToken
-          // is the JWT we got back when the user registered/logged in
-          // (see App.jsx) — sending it here lets the backend's
-          // authenticateToken middleware work out req.user.user_id.
           Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({
           make: bikeMake,
           model,
           year,
+          //This just says pass on the info provided OR make it null because it was skipped.
           mot_date: motDate || null,
           tax_date: taxDate || null,
           insurance_date: insuranceDate || null,
-          // selectedBike already IS the full spec object from API Ninjas
-          // (or null if the rider used manual entry) — we just forward it
-          // straight through. The backend stringifies it and stores it.
-          spec: selectedBike || null,
+          spec: selectedBike || null, // null if manual entry
         }),
       });
 
@@ -275,7 +233,7 @@ function OnboardingOverlay({
     }
   };
 
-  // Step 2's "Continue" saves whatever dates were entered; "Skip for now"
+  // Step 2's "Continue" saves whatever dates were entered; "Skip"
   // saves the bike with all three dates left null.
   const handleContinueWithDates = async () => {
     const saved = await createBike({ motDate: motDue, taxDate: taxDue, insuranceDate: insuranceDue });
@@ -287,9 +245,9 @@ function OnboardingOverlay({
     if (saved) onNext();
   };
 
-  // Maintenance step — PATCHes the bike created back at the key-dates step
-  // with current mileage and last-service info. Only one of
-  // lastServiceDate/lastServiceMileage is sent, whichever mode was active.
+  // Maintenance step!!  PATCH the bike created back at the key-dates step
+  // with current mileage and last service info. Only one of
+  // lastServiceDate/lastServiceMileage is sent, whichever mode was active. This is controlled by a toggle on the modal.
   const saveMaintenance = async ({ mileageValue, lastServiceDateValue, lastServiceMileageValue }) => {
     // No bike id means bike creation failed earlier — nothing to attach
     // maintenance info to, so just let the rider move on.
@@ -343,9 +301,8 @@ function OnboardingOverlay({
     onNext();
   };
 
-  // usual prevent default. Step 0 calls onAuthSubmit (register/login). Step 1
-  // just checks a bike has actually been picked (via search) or manually
-  // entered before advancing. Any other step just advances.
+  // Step 0: submit login/register. Step 1: require a bike before advancing.
+  // Everything else: just advance.
   const handlePrimaryAction = async (event) => {
     event.preventDefault();
 
@@ -378,7 +335,7 @@ function OnboardingOverlay({
     onNext();
   };
 
-  // The main orange button label changes based on current step AND mode. If the user is on the first step, it will say "Create account" or "Log in" depending on the mode. If the user is on the last step, it will say "Go to dashboard". Otherwise, it will say "Continue".
+  // Step 0: "Create account"/"Log in". Last step: "Go to dashboard". Else: "Continue".
   const primaryButtonLabel =
     step === 0
       ? mode === 'register'
@@ -396,7 +353,7 @@ function OnboardingOverlay({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-6">
       <div className="w-full max-w-md overflow-hidden rounded-[24px] border border-white/10 bg-surface p-6 shadow-flat">
         <div className="mb-4 flex gap-2">
-          {/* // The progress bar at the top of the overlay. They show how many steps are in the onboarding process and which step the user is currently on. The current step is highlighted with the accent orange, otherwise its grey. It used map to LOOP through the onboardingSlides array and create a span for each step. This keeps it dynamic! The span is given the orange colour if the index is less than or equal to the current step, otherwise it is given a class of white (with low opacity) */}
+          {/* Progress bar: one span per slide, orange up to the current step. */}
           {onboardingSlides.map((_, index) => (
             <span
               key={index}
@@ -436,9 +393,6 @@ function OnboardingOverlay({
                     />
                   </div>
 
-                  {/* Plain text, no validation — see the comment on the postcode
-                      state above for why. Optional, so no placeholder-as-example
-                      pressure to fill it in right now. */}
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-text">Postcode (optional)</label>
                     <input
@@ -475,7 +429,7 @@ function OnboardingOverlay({
                 />
               </div>
 
-{/* // If left empty, returns Fetch request error. Otherwise it shows a dedicated auth er. It comes from the parent component 'onAuthSubmit' in App.JSX , which is called when the user submits the form. It will return an error if the email or password is invalid, or if the user already exists (for registration).  */}
+              {/* Set by onAuthSubmit in App.jsx for bad login or duplicate email */}
               {authError && (
                 <div className="rounded-2xl border border-accent/20 bg-accent/10 px-3 py-2 text-sm text-accent">
                   {authError}
@@ -495,10 +449,6 @@ function OnboardingOverlay({
             </div>
           )}
 
-{/* Make is a curated static list (API Ninjas' makes/models list endpoints
-    are paywalled on the free tier). Model is a live search against
-    /api/motorcycles/spec — the rider picks an exact result rather than
-    typing free text, so we never silently cache the wrong bike's spec. */}
           {step === 1 && (
             <div className="space-y-4">
               <div className="space-y-2">
@@ -625,7 +575,7 @@ function OnboardingOverlay({
             </div>
           )}
 
-{/* // Not palceholder because the user has the option to manually add their MOT etc. NEED TO ADD THE MATH FUNCTIONS TO CALCULATE DATES */}
+          {/* NEED TO ADD THE MATH FUNCTIONS TO CALCULATE DATES. Scope for future */}
           {step === 2 && (
             <div className="space-y-4">
               <div className="space-y-2">
@@ -666,9 +616,7 @@ function OnboardingOverlay({
             </div>
           )}
 
-{/* Mileage is always shown; last service can be recorded either as a date
-    or as an odometer reading at the time — the toggle picks which one gets
-    sent, the other stays null. */}
+          {/* Last service: toggle picks date or mileage, only one gets sent. */}
           {step === 3 && (
             <div className="space-y-4">
               <div className="space-y-2">
@@ -737,7 +685,6 @@ function OnboardingOverlay({
             </div>
           )}
 
-{/* // // The final slide shows a big tick and a message that the user is signed up. It also has a button to go to the dashboard. */}
           {step === 4 && (
             <div className="space-y-5 text-center">
               <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-accent/15 text-accent">
@@ -748,7 +695,7 @@ function OnboardingOverlay({
             </div>
           )}
 
-{/* //If the user is on the key-dates or maintenance step, show Continue/Skip instead of the usual submit button. Skipping puts null values in for whatever wasn't filled in but lets them move on. The user dashboard will contain the abillity to edit their profile later. */}
+          {/* Key-dates/maintenance steps get Continue/Skip instead of the usual submit button. */}
           <div className={`mt-6 ${step === 2 || step === 3 ? 'flex gap-3' : 'text-right'}`}>
             {step === 2 ? (
               <>

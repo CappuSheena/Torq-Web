@@ -7,35 +7,16 @@ import FeaturedEvent from './FeaturedEvent';
 import BikeCard from './BikeCard';
 import { API_BASE_URL } from '../lib/api';
 
-// Profile screen (Docs/CLAUDE.md "Profile screen"): user header, the
-// signed-in rider's bikes, and an entry point for adding another one.
-// Bike profile and account settings live entirely here, not on the home
-// dashboard.
 function ProfilePage({ user, authToken, onLogout }) {
-  // "Add another bike" opens an onboarding-style flow that hasn't been
-  // designed yet (see Docs/CLAUDE.md) — for now it just reveals a note
-  // instead of pretending to start a flow that doesn't exist.
+  // Add-bike flow isn't built yet, so this just toggles a "coming soon" note.
   const [showAddBikeStubNote, setShowAddBikeStubNote] = useState(false);
 
   const [bikes, setBikes] = useState([]);
   const [bikesLoading, setBikesLoading] = useState(true);
   const [bikesError, setBikesError] = useState('');
 
-  // This is the other end of the bike-saving process in OnboardingOverlay.jsx.
-  // Once a bike has been created there, it's sitting in the MySQL database —
-  // this effect just asks our backend for it again so we can show it here.
-  // Runs once when the page first loads (and again if authToken ever
-  // changes, e.g. after logging out and back in as someone else).
-  //   1. GET /api/bikes, with the JWT in the Authorization header so the
-  //      backend knows which user's bikes to send back (see bikes.js —
-  //      it only ever returns bikes belonging to req.user.user_id).
-  //   2. While that's in flight, bikesLoading is true and we show a
-  //      "Loading your bikes…" message instead of an empty page.
-  //   3. If it works, save the array into `bikes` state — BikeCard then
-  //      renders one card per bike, using the real make/model/spec_json
-  //      etc that came back from the database (no more mock data).
-  //   4. If anything goes wrong (server down, bad token, etc), show the
-  //      error message instead of just leaving a blank/broken screen.
+  // Fetches this user's bikes (created earlier in OnboardingOverlay.jsx) so nike card has something to render
+
   useEffect(() => {
     const loadBikes = async () => {
       setBikesLoading(true);
@@ -94,6 +75,7 @@ function ProfilePage({ user, authToken, onLogout }) {
             </div>
           )}
 
+{/* //Something I want to add in future! Reopens the add bike menu. Not needed for graded unit. */}
           <button
             type="button"
             onClick={() => setShowAddBikeStubNote((shown) => !shown)}
@@ -103,16 +85,14 @@ function ProfilePage({ user, authToken, onLogout }) {
               <IconPlus size={16} /> Add another bike
             </span>
           </button>
-
+{/* But because it isnt needed I just added this little stub that says coming soon. */}
           {showAddBikeStubNote && (
             <p className="text-center text-xs text-muted">
               The add-bike flow isn't built yet — coming soon.
             </p>
           )}
         </section>
-        {/* Ride conditions and the featured event sit side by side once
-            there's room (same responsive pattern as the bike spec grid in
-            BikeCard.jsx) — single column on mobile, 50/50 from sm up. */}
+        {/* Single column on mobile, 50/50 from tablet size up up. */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <RideConditions authToken={authToken} />
           <FeaturedEvent />

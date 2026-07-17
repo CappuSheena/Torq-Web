@@ -13,10 +13,8 @@ import {
 // Anything due within this many days is flagged as "due soon" 
 const DUE_SOON_THRESHOLD_DAYS = 30;
 
-// The four headline specs shown collapsed, mapped to the actual API Ninjas
-// field names cached in bikes.spec_json (there's no "kerb weight" field —
-// total_weight is the closest match). Everything else in spec_json shows
-// up under "See more" instead of being hardcoded here.
+// Headline specs shown collapsed (total_weight stands in for kerb weight —
+// API Ninjas doesn't have that field). Everything else goes under "See more".
 const HEADLINE_SPEC_KEYS = ['engine', 'power', 'torque', 'total_weight'];
 // Excluded from "See more" too — make/model/year are already the card title.
 const SEE_MORE_EXCLUDED_KEYS = [...HEADLINE_SPEC_KEYS, 'make', 'model', 'year'];
@@ -179,9 +177,6 @@ function BikeCard({ bike }) {
 
                 {showAllSpecs && (
                   <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
-                    {/* Same dynamic key list as before — just tiled instead of bare text.
-                        No truncation/line-clamp so long values (e.g. long fuel-system
-                        descriptions) wrap and grow the tile instead of overflowing it. */}
                     {remainingSpecEntries.map(([key, value]) => (
                       <div key={key} className="rounded-lg bg-[#0D1520] p-2.5">
                         <p className="text-[11px] uppercase tracking-wide text-muted">{formatSpecLabel(key)}</p>

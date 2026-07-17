@@ -91,10 +91,7 @@ function App() {
   };
 
   const goToNextSlide = () => {
-    // Last slide's button closes the popup instead of advancing further, and
-    // (its label literally reads "Go to dashboard") sends the now-signed-in
-    // rider to their dashboard instead of leaving them on whatever page was
-    // behind the modal.
+    // Last slide's button closes the popup and sends the rider to their dashboard.
     if (onboardingStep === onboardingSlides.length - 1) {
       closeOnboarding();
       navigate('/dashboard');

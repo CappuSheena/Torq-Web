@@ -29,11 +29,8 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-// These two lines plug the route files in routes/ into the app. Any
-// request that starts with /api/motorcycles (e.g. /api/motorcycles/spec)
-// gets handed off to motorcycles.js to deal with; anything starting with
-// /api/bikes goes to bikes.js. Keeps this file from turning into one giant
-// list of every single route.
+// Plugs the route files in routes/ into the app, keeping this file from
+// turning into one giant list of every single route.
 app.use('/api/motorcycles', motorcyclesRouter);
 app.use('/api/bikes', bikesRouter);
 app.use('/api/weather', weatherRouter);
@@ -60,12 +57,8 @@ app.post('/api/auth/register', async (req, res, next) => {
 
     // hash the password
     const passwordHash = await bcrypt.hash(password, 10);
-    // Postcode is optional and saved as-is (no format checking, no lookup)
-    // — we deliberately DON'T call postcodes.io here. That keeps registration
-    // fast and working even if the postcode typed in is wrong or that API is
-    // down. The postcode gets turned into latitude/longitude lazily instead,
-    // the first time GET /api/weather is actually called (see weather.js) —
-    // that's also where a bad postcode would surface as a proper error.
+    // Postcode is saved as-is, no lookup here — it's turned into
+    // latitude/longitude lazily on first weather check instead (weather.js).
     const [result] = await query(
       'INSERT INTO users (email, password_hash, display_name, postcode, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())',
       [normalisedEmail, passwordHash, display_name.trim(), postcode ? postcode.trim() : null]
