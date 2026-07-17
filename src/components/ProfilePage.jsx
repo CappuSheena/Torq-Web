@@ -4,6 +4,7 @@ import ProfileHero from './ProfileHero';
 import ProfileHeader from './ProfileHeader';
 import RideConditions from './RideConditions';
 import FeaturedEvent from './FeaturedEvent';
+import PreRideChecklist from './PreRideChecklist';
 import BikeCard from './BikeCard';
 import { API_BASE_URL } from '../lib/api';
 
@@ -64,6 +65,9 @@ function ProfilePage({ user, authToken, onLogout }) {
               {bikesError}
             </p>
           ) : bikes.length === 0 ? (
+
+// I want to explain this bit of code! I thought it would be completely redundant to add since the user cannot finish setting up their account until they add a bike BUT! When the user adds their name, email and password, it automatically creates the account within the database. Theoretically, they can then click the X in the corner, and have an account without adding a bike. Because the user is automatically signed in after creation, they can then access the dashboard and see their page with no bike. So after arguing with Claude that it wasn't neccessary, I thought it would be better to add than leave it blank. In the future, the "add a bike" button will work and this is a bug that can be fixed.
+
             <p className="rounded-[20px] border border-white/10 bg-surface px-5 py-6 text-center text-sm text-muted">
               No bikes yet — add your first bike to start tracking maintenance, MOT, tax, and insurance dates.
             </p>
@@ -97,6 +101,8 @@ function ProfilePage({ user, authToken, onLogout }) {
           <RideConditions authToken={authToken} />
           <FeaturedEvent />
         </div>
+
+        <PreRideChecklist />
       </div>
     </div>
   );

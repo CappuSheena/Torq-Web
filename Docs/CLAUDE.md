@@ -95,6 +95,11 @@ Independent reference tables (no FK to users):
 - `checklist_items` (item_id, label, sort_order) — static pre-ride checklist.
   Completion state lives in frontend session state only, **not** persisted —
   it must reset on page reload and on logout.
+  Current build (`PreRideChecklist.jsx`) is a deliberate scope-down of this:
+  a static, read-only, hardcoded six-item display with no checkboxes, no
+  state, and no backend/table at all. Upgrading it to the interactive
+  FR6/FR7 version above (real checkboxes, session state, DB-backed items)
+  is a planned addition, not a bug to fix.
 - `events` (event_id, name, description, event_date, start_time, end_time,
   image_url, location) — `location` is a plain text field (e.g. "Riverside
   car park, Glasgow"), not latitude/longitude — simpler than geocoding every
