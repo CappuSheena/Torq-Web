@@ -316,15 +316,17 @@ function OnboardingOverlay({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-6">
       <div className="w-full max-w-md overflow-hidden rounded-[24px] border border-white/10 bg-surface p-6 shadow-flat">
-        <div className="mb-4 flex gap-2">
-          {/* Progress bar: one span per slide, orange up to the current step. */}
-          {onboardingSlides.map((_, index) => (
-            <span
-              key={index}
-              className={`h-2.5 flex-1 rounded-full transition ${index <= step ? 'bg-accent' : 'bg-white/10'}`}
-            />
-          ))}
-        </div>
+        {/* Login is just step 0, no multi-step flow, so no progress bar needed. */}
+        {mode === 'register' && (
+          <div className="mb-4 flex gap-2">
+            {onboardingSlides.map((_, index) => (
+              <span
+                key={index}
+                className={`h-2.5 flex-1 rounded-full transition ${index <= step ? 'bg-accent' : 'bg-white/10'}`}
+              />
+            ))}
+          </div>
+        )}
 
         <div className="mb-5 flex items-center justify-between gap-4">
           <div className="space-y-1">

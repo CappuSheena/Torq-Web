@@ -12,6 +12,7 @@ function MobileMenu({
   onLogInClick,
   onProfileClick,
   onCommunityClick,
+  onGuidesClick,
   isLoading = false,
 }) {
   useEffect(() => {
@@ -35,7 +36,7 @@ function MobileMenu({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Signed out: any nav item opens sign-up. Signed in: dashboard/community navigate to their real pages; checklist still has no page of its own (it lives inside the dashboard), so it just closes the menu.
+  // Signed out: any nav item opens sign-up. Signed in: dashboard/community/guides navigate to their real pages; checklist still has no page of its own (it lives inside the dashboard), so it just closes the menu.
   const handleNavClick = (key) => {
     if (!isAuthenticated) {
       onSignUpClick();
@@ -46,6 +47,9 @@ function MobileMenu({
     }
     if (key === 'community') {
       onCommunityClick?.();
+    }
+    if (key === 'guides') {
+      onGuidesClick?.();
     }
     onClose();
   };

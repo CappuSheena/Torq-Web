@@ -5,6 +5,7 @@ import HomePage from './components/HomePage';
 import OnboardingOverlay from './components/OnboardingOverlay';
 import ProfilePage from './components/ProfilePage';
 import CommunityPage from './components/CommunityPage';
+import GuidesPage from './components/GuidesPage';
 import Footer from './components/Footer';
 import { onboardingSlides } from './data/homeContent';
 import { API_BASE_URL } from './lib/api';
@@ -180,6 +181,7 @@ function App() {
 
   const goToDashboard = () => navigate('/dashboard');
   const goToCommunity = () => navigate('/community');
+  const goToGuides = () => navigate('/guides');
   const goToHome = () => navigate('/');
 
   return (
@@ -189,6 +191,7 @@ function App() {
         onLogInClick={openLogIn}
         onProfileClick={goToDashboard}
         onCommunityClick={goToCommunity}
+        onGuidesClick={goToGuides}
         onLogoClick={goToHome}
         isAuthenticated={isAuthenticated}
         user={authUser}
@@ -205,7 +208,7 @@ function App() {
             authLoading ? (
               <p className="px-4 py-10 text-center text-sm text-muted">Checking session…</p>
             ) : isAuthenticated ? (
-              <ProfilePage user={authUser} authToken={authToken} onLogout={handleLogout} />
+              <ProfilePage user={authUser} authToken={authToken} />
             ) : (
               <Navigate to="/" replace />
             )
@@ -219,6 +222,19 @@ function App() {
               <p className="px-4 py-10 text-center text-sm text-muted">Checking session…</p>
             ) : isAuthenticated ? (
               <CommunityPage />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+        <Route
+          path="/guides"
+          // Same auth-gate as /dashboard and /community above.
+          element={
+            authLoading ? (
+              <p className="px-4 py-10 text-center text-sm text-muted">Checking session…</p>
+            ) : isAuthenticated ? (
+              <GuidesPage />
             ) : (
               <Navigate to="/" replace />
             )

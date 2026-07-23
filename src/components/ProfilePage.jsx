@@ -8,7 +8,7 @@ import PreRideChecklist from './PreRideChecklist';
 import BikeCard from './BikeCard';
 import { API_BASE_URL } from '../lib/api';
 
-function ProfilePage({ user, authToken, onLogout }) {
+function ProfilePage({ user, authToken }) {
   // Add-bike flow isn't built yet, so this just toggles a "coming soon" note.
   const [showAddBikeStubNote, setShowAddBikeStubNote] = useState(false);
 
@@ -49,7 +49,7 @@ function ProfilePage({ user, authToken, onLogout }) {
       <ProfileHero displayName={user?.display_name} />
 
       <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-        <ProfileHeader user={user} onLogout={onLogout} />
+        <ProfileHeader user={user} />
 
 
 

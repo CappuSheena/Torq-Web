@@ -12,6 +12,7 @@ function Header({
   onLogInClick,
   onProfileClick,
   onCommunityClick,
+  onGuidesClick,
   onLogoClick,
   isAuthenticated = false,
   user = null,
@@ -34,6 +35,9 @@ function Header({
     }
     if (key === 'community') {
       onCommunityClick?.();
+    }
+    if (key === 'guides') {
+      onGuidesClick?.();
     }
   };
 
@@ -142,6 +146,7 @@ function Header({
         onLogInClick={onLogInClick}
         onProfileClick={onProfileClick}
         onCommunityClick={onCommunityClick}
+        onGuidesClick={onGuidesClick}
         isLoading={isLoading}
       />
     </header>

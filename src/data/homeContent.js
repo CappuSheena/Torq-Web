@@ -1,7 +1,6 @@
 // 
 
 import {
-  IconCalendarEvent,
   IconChecklist,
   IconMapPin,
   IconTool,
@@ -18,15 +17,6 @@ export const featureCards = [
     //PLACEHOLDER IMG - WILL BE REPLACED WITH SCREENSHOT OF FEATURE
     image: '../src/assets/screenshots/key-dates.png',
     imageAlt: 'Bike profile card showing MOT, tax and insurance key dates',
-  },
-  {
-    title: 'Shared calendar',
-    description: 'See every service date and bike meet on one colour-coded calendar once you sign in.',
-    icon: IconCalendarEvent,
-    featured: true,
-    //PLACEHOLDER IMG - WILL BE REPLACED WITH SCREENSHOT OF FEATURE
-    image: '../src/assets/screenshots/calendar.png',
-    imageAlt: 'Mini calendar with colour-coded maintenance and bike meet dates',
   },
   {
     title: 'Pre-ride checklist',
